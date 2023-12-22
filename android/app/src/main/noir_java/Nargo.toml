@@ -1,0 +1,7 @@
+[package]
+name = "noir_java"
+type = "bin"
+authors = [""]
+compiler_version = ">=0.19.3"
+
+[dependencies]

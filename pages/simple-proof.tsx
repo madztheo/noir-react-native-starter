@@ -4,6 +4,9 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import {NativeModules} from 'react-native';
+
+const {NoirProvingModule} = NativeModules;
 
 const truncateProof = (proof: string) => {
   const length = proof.length;
@@ -35,15 +38,20 @@ export default function SimpleProof() {
     setGeneratingProof(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     try {
-      //const proof = await generateProof();
-      //setProof(proof);
+      const res = await NoirProvingModule.prove({
+        a: factors.a,
+        b: factors.b,
+        result,
+      });
+      console.log(res);
+      setProof(res);
       // Generate random hex string
-      const randomHexString = (length: number) =>
+      /*const randomHexString = (length: number) =>
         [...Array(length)]
           .map(() => Math.floor(Math.random() * 16).toString(16))
           .join('');
       const randomProof = randomHexString(4288);
-      setProof(randomProof);
+      setProof(randomProof);*/
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
@@ -109,7 +117,12 @@ export default function SimpleProof() {
             setFactors(prev => ({...prev, a: val}));
           }}
         />
-        <Text>x</Text>
+        <Text
+          style={{
+            color: '#151628',
+          }}>
+          x
+        </Text>
         <Input
           style={{
             flex: 1,
@@ -126,6 +139,7 @@ export default function SimpleProof() {
         style={{
           textAlign: 'center',
           marginBottom: 20,
+          color: '#151628',
         }}>
         {getResult()}
       </Text>
@@ -205,5 +219,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
     marginBottom: 5,
+    color: '#151628',
   },
 });
