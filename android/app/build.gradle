@@ -117,3 +117,58 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+//apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
+
+def rustLibName = "noir_java" // Adjust based on your library name
+def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
+
+/*cargo {
+    module  = "${rustLibPath}" 
+    libname = "${rustLibName}" 
+    targets =  ["arm64", "darwin-aarch64"]
+    targetIncludes = ["lib${rustLibName}.so"]
+    apiLevel = 29
+    profile = 'release'
+}*/
+
+tasks.register("buildRust", Exec.class) {
+    workingDir(file("$rustLibPath"))
+    // Android arm64
+    commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android")
+    // Android arm
+    // commandLine("cargo", "build", "--release", "--target", "armv7-linux-androideabi")
+    // Android x86
+    // commandLine("cargo", "build", "--release", "--target", "i686-linux-android")
+    // Android x86_64
+    // commandLine("cargo", "build", "--release", "--target", "x86_64-linux-android")
+    // MacOS arm64
+    // commandLine("cargo", "build", "--release", "--target", "aarch64-apple-darwin")
+}
+
+tasks.register("buildNargo", Exec.class) {
+    workingDir(file("$rustLibPath"))
+    commandLine("nargo", "compile")
+}
+
+tasks.register("copyNargoBytecode", Copy.class) {
+    def targetDir = "${rustLibName}.json"
+    from("$rustLibPath/target/$targetDir")
+    into("src/main/resources")
+}
+
+tasks.whenTaskAdded { task ->
+    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
+        task.dependsOn("buildRust", "buildNargo", "copyNargoBytecode")
+    }
+    if ((task.name == 'processDebugJavaRes' || task.name == 'processReleaseJavaRes')) {
+        task.dependsOn("copyNargoBytecode")
+    }
+}
+
+/*
+// Fix the UnsatisfiedLinkError (c.f. https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1777952460)
+tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
+    it.inputs.dir(new File(buildDir, "rustJniLibs/android"))
+    it.dependsOn("cargoBuild")
+}
+*/
