@@ -134,7 +134,7 @@ def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
 tasks.register("buildRust", Exec.class) {
     workingDir(file("$rustLibPath"))
     // Android arm64
-    commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android")
+    commandLine("cross", "build", "--release", "--target", "aarch64-linux-android")
     // Android arm
     // commandLine("cargo", "build", "--release", "--target", "armv7-linux-androideabi")
     // Android x86
