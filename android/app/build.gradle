@@ -81,6 +81,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        ndk {
+            abiFilters "arm64-v8a"
+        }
     }
     signingConfigs {
         debug {
@@ -125,16 +128,16 @@ def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
 /*cargo {
     module  = "${rustLibPath}" 
     libname = "${rustLibName}" 
-    targets =  ["arm64", "darwin-aarch64"]
+    targets =  ["arm64"]
     targetIncludes = ["lib${rustLibName}.so"]
-    apiLevel = 29
+    apiLevel = 34
     profile = 'release'
 }*/
 
 tasks.register("buildRust", Exec.class) {
     workingDir(file("$rustLibPath"))
     // Android arm64
-    commandLine("cross", "build", "--release", "--target", "aarch64-linux-android")
+    commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android")
     // Android arm
     // commandLine("cargo", "build", "--release", "--target", "armv7-linux-androideabi")
     // Android x86
@@ -165,10 +168,9 @@ tasks.whenTaskAdded { task ->
     }
 }
 
-/*
+
 // Fix the UnsatisfiedLinkError (c.f. https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1777952460)
-tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
+/*tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
     it.inputs.dir(new File(buildDir, "rustJniLibs/android"))
     it.dependsOn("cargoBuild")
-}
-*/
+}*/

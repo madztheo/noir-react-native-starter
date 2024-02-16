@@ -1,2 +1,5 @@
 [target.aarch64-linux-android]
 pre-build = ["apt remove --purge cmake && hash -r && apt install build-essential libssl-dev wget --assume-yes && wget https://github.com/Kitware/CMake/releases/download/v3.24.4/cmake-3.24.4.tar.gz && tar -zxvf cmake-3.24.4.tar.gz && cd cmake-3.24.4 && ./bootstrap && make && make install"]
+
+[target.arm-linux-androideabi]
+pre-build = ["apt remove --purge cmake && hash -r && apt install build-essential libssl-dev wget --assume-yes && wget https://github.com/Kitware/CMake/releases/download/v3.24.4/cmake-3.24.4.tar.gz && tar -zxvf cmake-3.24.4.tar.gz && cd cmake-3.24.4 && ./bootstrap && make && make install"]

@@ -5,7 +5,6 @@ version = 3
 [[package]]
 name = "acir"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir_field",
  "base64",
@@ -19,7 +18,6 @@ dependencies = [
 [[package]]
 name = "acir_field"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -33,7 +31,6 @@ dependencies = [
 [[package]]
 name = "acvm"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
  "acvm_blackbox_solver",
@@ -48,7 +45,6 @@ dependencies = [
 [[package]]
 name = "acvm_blackbox_solver"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
  "blake2",
@@ -62,7 +58,6 @@ dependencies = [
 [[package]]
 name = "acvm_stdlib"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
 ]
@@ -324,7 +319,6 @@ dependencies = [
 [[package]]
 name = "brillig"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir_field",
  "serde",
@@ -333,7 +327,6 @@ dependencies = [
 [[package]]
 name = "brillig_vm"
 version = "0.35.0"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
  "acvm_blackbox_solver",
@@ -1072,7 +1065,6 @@ dependencies = [
 [[package]]
 name = "noir_rs"
 version = "0.19.4"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
  "acvm",
@@ -1084,6 +1076,7 @@ dependencies = [
  "noir_rs_acvm_runtime",
  "noir_rs_barretenberg",
  "noir_rs_blackbox_solver",
+ "openssl",
  "serde",
  "thiserror",
 ]
@@ -1091,7 +1084,6 @@ dependencies = [
 [[package]]
 name = "noir_rs_acir_composer"
 version = "0.19.4"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "noir_rs_barretenberg",
  "thiserror",
@@ -1100,7 +1092,6 @@ dependencies = [
 [[package]]
 name = "noir_rs_acvm_runtime"
 version = "0.19.4"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acvm",
  "noir_rs_acir_composer",
@@ -1112,7 +1103,6 @@ dependencies = [
 [[package]]
 name = "noir_rs_barretenberg"
 version = "0.19.4"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "base64",
  "bindgen",
@@ -1126,7 +1116,6 @@ dependencies = [
 [[package]]
 name = "noir_rs_blackbox_solver"
 version = "0.19.4"
-source = "git+https://github.com/visoftsolutions/noir_rs.git?branch=latest#9e99af0cec41b6a7d6b93ba4b5b13638bd1c57fb"
 dependencies = [
  "acir",
  "acvm",
@@ -1234,6 +1223,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
+name = "openssl-src"
+version = "300.2.1+3.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fe476c29791a5ca0d1273c697e96085bbabbbea2ef7afd5617e78a4b40332d3"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "openssl-sys"
 version = "0.9.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1241,6 +1239,7 @@ checksum = "c1665caf8ab2dc9aef43d1c0023bd904633a6a05cb30b0ad59bec2ae986e57a7"
 dependencies = [
  "cc",
  "libc",
+ "openssl-src",
  "pkg-config",
  "vcpkg",
 ]
