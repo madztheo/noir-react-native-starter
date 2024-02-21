@@ -4,6 +4,8 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import {NativeModules} from 'react-native';
+const {NoirModule} = NativeModules;
 
 const truncateProof = (proof: string) => {
   const length = proof.length;
@@ -35,15 +37,19 @@ export default function SimpleProof() {
     setGeneratingProof(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     try {
-      //const proof = await generateProof();
-      //setProof(proof);
+      const proof = await NoirModule.prove({
+        a: factors.a,
+        b: factors.b,
+        result,
+      });
+      console.log('Proof:', proof);
       // Generate random hex string
-      const randomHexString = (length: number) =>
+      /*const randomHexString = (length: number) =>
         [...Array(length)]
           .map(() => Math.floor(Math.random() * 16).toString(16))
           .join('');
-      const randomProof = randomHexString(4288);
-      setProof(randomProof);
+      const randomProof = randomHexString(4288);*/
+      setProof(proof);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
