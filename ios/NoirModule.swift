@@ -100,7 +100,7 @@ class NoirModule: NSObject {
       resolve(["verified": verified])
     } catch {
       print("Error", error)
-      reject("PROOF_VERIFICATION_ERROR", "Error generating the proof", error)
+      reject("PROOF_VERIFICATION_ERROR", "Error verifying the proof", error)
     }
   }
 }

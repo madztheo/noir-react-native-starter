@@ -7,7 +7,7 @@ import Input from '../components/Input';
 import {NativeModules} from 'react-native';
 const {NoirModule} = NativeModules;
 
-const truncateProof = (proof: string) => {
+const formatProof = (proof: string) => {
   const length = proof.length;
   return `${proof.substring(0, 100)}...${proof.substring(
     length - 100,
@@ -16,6 +16,7 @@ const truncateProof = (proof: string) => {
 };
 
 export default function SimpleProof() {
+  const [proofAndInputs, setProofAndInputs] = useState('');
   const [proof, setProof] = useState('');
   const [vkey, setVkey] = useState('');
   const [generatingProof, setGeneratingProof] = useState(false);
@@ -42,7 +43,10 @@ export default function SimpleProof() {
         b: factors.b,
         result,
       });
-      setProof(_proof);
+      setProofAndInputs(_proof);
+      // The result contains the inputs concatenated to the proof
+      // So we extract only the proof (the last 2144 bytes)
+      setProof(_proof.slice(-4288));
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -54,7 +58,7 @@ export default function SimpleProof() {
   const onVerifyProof = async () => {
     setVerifyingProof(true);
     try {
-      const {verified} = await NoirModule.verify(proof, vkey);
+      const {verified} = await NoirModule.verify(proofAndInputs, vkey);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {
@@ -138,7 +142,7 @@ export default function SimpleProof() {
               color: '#6B7280',
               marginBottom: 20,
             }}>
-            {truncateProof(proof)}
+            {formatProof(proof)}
           </Text>
         </>
       )}
