@@ -14,4 +14,9 @@ RCT_EXTERN_METHOD(prove:(NSDictionary)inputs
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(verify:(NSString)proof
+                  vkey:(NSString)vkey
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
 @end

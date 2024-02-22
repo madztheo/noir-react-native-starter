@@ -17,6 +17,7 @@ const truncateProof = (proof: string) => {
 
 export default function SimpleProof() {
   const [proof, setProof] = useState('');
+  const [vkey, setVkey] = useState('');
   const [generatingProof, setGeneratingProof] = useState(false);
   const [verifyingProof, setVerifyingProof] = useState(false);
   const [factors, setFactors] = useState({
@@ -35,21 +36,14 @@ export default function SimpleProof() {
       return;
     }
     setGeneratingProof(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     try {
-      const proof = await NoirModule.prove({
+      const {proof: _proof, vkey: _vkey} = await NoirModule.prove({
         a: factors.a,
         b: factors.b,
         result,
       });
-      console.log('Proof:', proof);
-      // Generate random hex string
-      /*const randomHexString = (length: number) =>
-        [...Array(length)]
-          .map(() => Math.floor(Math.random() * 16).toString(16))
-          .join('');
-      const randomProof = randomHexString(4288);*/
-      setProof(proof);
+      setProof(_proof);
+      setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
@@ -59,15 +53,13 @@ export default function SimpleProof() {
 
   const onVerifyProof = async () => {
     setVerifyingProof(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     try {
-      /*const result = await verifyProof(proof);
-      if (result) {
+      const {verified} = await NoirModule.verify(proof, vkey);
+      if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {
         Alert.alert('Verification result', 'The proof is invalid');
-      }*/
-      Alert.alert('Verification result', 'The proof is valid!');
+      }
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
