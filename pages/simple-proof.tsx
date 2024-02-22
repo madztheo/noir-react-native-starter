@@ -4,8 +4,7 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import {NativeModules} from 'react-native';
-const {NoirModule} = NativeModules;
+import {generateProof, verifyProof} from '../lib/noir';
 
 const formatProof = (proof: string) => {
   const length = proof.length;
@@ -38,15 +37,17 @@ export default function SimpleProof() {
     }
     setGeneratingProof(true);
     try {
-      const {proof: _proof, vkey: _vkey} = await NoirModule.prove({
+      const {
+        fullProof,
+        proof: _proof,
+        vkey: _vkey,
+      } = await generateProof({
         a: factors.a,
         b: factors.b,
         result,
       });
-      setProofAndInputs(_proof);
-      // The result contains the inputs concatenated to the proof
-      // So we extract only the proof (the last 2144 bytes)
-      setProof(_proof.slice(-4288));
+      setProofAndInputs(fullProof);
+      setProof(_proof);
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -58,7 +59,7 @@ export default function SimpleProof() {
   const onVerifyProof = async () => {
     setVerifyingProof(true);
     try {
-      const {verified} = await NoirModule.verify(proofAndInputs, vkey);
+      const verified = await verifyProof(proofAndInputs, vkey);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {
