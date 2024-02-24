@@ -49,7 +49,7 @@ export async function verifyProof(proof: string, vkey: string, circuit?: any) {
     vkey,
     // If the circuit is undefined, then it will use whichever circuit was loaded before
     // If no circuit was loaded before, then it will throw an error
-    circuit ? JSON.stringify(circuit) : circuit,
+    circuit ? JSON.stringify(circuit) : undefined,
   );
   return verified;
 }
