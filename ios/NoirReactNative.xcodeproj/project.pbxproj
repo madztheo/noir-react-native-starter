@@ -20,8 +20,6 @@
 		C273AF502B86595200991B29 /* NoirModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C273AF4E2B86595200991B29 /* NoirModule.swift */; };
 		C273AF522B8659EF00991B29 /* NoirModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C273AF512B8659EF00991B29 /* NoirModule.m */; };
 		C273AF532B8659EF00991B29 /* NoirModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C273AF512B8659EF00991B29 /* NoirModule.m */; };
-		C273AF5C2B86635B00991B29 /* circuit.json in Resources */ = {isa = PBXBuildFile; fileRef = C273AF5B2B86635B00991B29 /* circuit.json */; };
-		C273AF5D2B86635B00991B29 /* circuit.json in Resources */ = {isa = PBXBuildFile; fileRef = C273AF5B2B86635B00991B29 /* circuit.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,7 +52,6 @@
 		C273AF4E2B86595200991B29 /* NoirModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoirModule.swift; sourceTree = "<group>"; };
 		C273AF512B8659EF00991B29 /* NoirModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoirModule.m; sourceTree = "<group>"; };
 		C273AF572B865E9400991B29 /* NoirReactNative-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NoirReactNative-Bridging-Header.h"; sourceTree = "<group>"; };
-		C273AF5B2B86635B00991B29 /* circuit.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = circuit.json; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -100,7 +97,6 @@
 		13B07FAE1A68108700A75B9A /* NoirReactNative */ = {
 			isa = PBXGroup;
 			children = (
-				C273AF5B2B86635B00991B29 /* circuit.json */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -260,7 +256,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C273AF5D2B86635B00991B29 /* circuit.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,7 +265,6 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				C273AF5C2B86635B00991B29 /* circuit.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

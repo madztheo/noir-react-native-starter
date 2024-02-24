@@ -4,7 +4,10 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import {generateProof, verifyProof} from '../lib/noir';
+import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
+// Get the circuit to load for the proof generation
+// Feel free to replace this with your own circuit
+import circuit from '../circuit/target/circuit.json';
 
 const formatProof = (proof: string) => {
   const length = proof.length;
@@ -37,15 +40,22 @@ export default function SimpleProof() {
     }
     setGeneratingProof(true);
     try {
+      // You can also preload the circuit separately using this function
+      // await preloadCircuit(circuit);
       const {
         fullProof,
         proof: _proof,
         vkey: _vkey,
-      } = await generateProof({
-        a: Number(factors.a),
-        b: Number(factors.b),
-        result,
-      });
+      } = await generateProof(
+        {
+          a: Number(factors.a),
+          b: Number(factors.b),
+          result,
+        },
+        // We load the circuit at the same time as the proof generation
+        // but you can use the preloadCircuit function to load it beforehand
+        circuit,
+      );
       setProofAndInputs(fullProof);
       setProof(_proof);
       setVkey(_vkey);
@@ -59,6 +69,8 @@ export default function SimpleProof() {
   const onVerifyProof = async () => {
     setVerifyingProof(true);
     try {
+      // No need to provide the circuit here, as it was already loaded
+      // during the proof generation
       const verified = await verifyProof(proofAndInputs, vkey);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');

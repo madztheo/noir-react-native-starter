@@ -66,4 +66,5 @@ yarn-error.log
 /coverage
 .env
 /circuit/target
+!/circuit/target/circuit.json
 /circuit/proofs
