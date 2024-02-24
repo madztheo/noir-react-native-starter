@@ -42,8 +42,8 @@ export default function SimpleProof() {
         proof: _proof,
         vkey: _vkey,
       } = await generateProof({
-        a: factors.a,
-        b: factors.b,
+        a: Number(factors.a),
+        b: Number(factors.b),
         result,
       });
       setProofAndInputs(fullProof);
@@ -76,7 +76,7 @@ export default function SimpleProof() {
     const factorA = Number(factors.a);
     const factorB = Number(factors.b);
     if (!isNaN(factorA) && !isNaN(factorB)) {
-      return (factorA * factorB).toString();
+      return factorA * factorB;
     }
     return '';
   };

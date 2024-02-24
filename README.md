@@ -25,7 +25,7 @@ For the rest follow the steps below:
 3. Run `cd ios && pod install` to install the pods for the iOS project
 4. Open the project in Xcode
 5. Make sure you see the `Swoir`, `SwoirCore` and `Swoirenberg` libraries in the `Package Dependencies` (if not please open an issue)
-6. Make sur you have a valid provisioning profile set up for the app in `Signing & Capabilities`
+6. Make sure you have a valid provisioning profile set up for the app in `Signing & Capabilities`
 7. Build & Run the app on your device
 
 ## How to replace the circuit

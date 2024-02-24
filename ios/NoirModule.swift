@@ -74,11 +74,7 @@ class NoirModule: NSObject {
       guard let circuit = loadCircuit() else {
         throw CircuitError.unableToInitiate
       }
-      var formattedInputs = [String:Int]()
-      for (key, value) in inputs {
-        formattedInputs[key] = Int(value as! String)
-      }
-      let proof = try circuit.prove(formattedInputs)
+      let proof = try circuit.prove(inputs)
       let hexProof = proof.proof.hexEncodedString()
       let hexVkey = proof.vkey.hexEncodedString()
       
