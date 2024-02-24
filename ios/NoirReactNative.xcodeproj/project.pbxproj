@@ -506,6 +506,7 @@
 				DEVELOPMENT_TEAM = G9LK8MWKT2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = NoirReactNative/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Noir React Native";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -544,6 +545,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G9LK8MWKT2;
 				INFOPLIST_FILE = NoirReactNative/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Noir React Native";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
