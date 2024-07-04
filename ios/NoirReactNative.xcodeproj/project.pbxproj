@@ -15,11 +15,12 @@
 		7699B88040F8A987B510C191 /* libPods-NoirReactNative-NoirReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-NoirReactNative-NoirReactNativeTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		C273AF452B86523F00991B29 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C273AF442B86523F00991B29 /* Swoir */; };
-		C273AF482B8654C000991B29 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C273AF472B8654C000991B29 /* Swoir */; };
 		C273AF4F2B86595200991B29 /* NoirModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C273AF4E2B86595200991B29 /* NoirModule.swift */; };
 		C273AF502B86595200991B29 /* NoirModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C273AF4E2B86595200991B29 /* NoirModule.swift */; };
 		C273AF522B8659EF00991B29 /* NoirModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C273AF512B8659EF00991B29 /* NoirModule.m */; };
 		C273AF532B8659EF00991B29 /* NoirModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C273AF512B8659EF00991B29 /* NoirModule.m */; };
+		C2E2EA402C35FA2A00078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA3F2C35FA2A00078AAB /* Swoir */; };
+		C2E2EA432C37237300078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA422C37237300078AAB /* Swoir */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +69,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C273AF482B8654C000991B29 /* Swoir in Frameworks */,
+				C2E2EA402C35FA2A00078AAB /* Swoir in Frameworks */,
+				C2E2EA432C37237300078AAB /* Swoir in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-NoirReactNative.a in Frameworks */,
 				C273AF452B86523F00991B29 /* Swoir in Frameworks */,
 			);
@@ -205,7 +207,8 @@
 			name = NoirReactNative;
 			packageProductDependencies = (
 				C273AF442B86523F00991B29 /* Swoir */,
-				C273AF472B8654C000991B29 /* Swoir */,
+				C2E2EA3F2C35FA2A00078AAB /* Swoir */,
+				C2E2EA422C37237300078AAB /* Swoir */,
 			);
 			productName = NoirReactNative;
 			productReference = 13B07F961A680F5B00A75B9A /* NoirReactNative.app */;
@@ -239,7 +242,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				C273AF462B8654C000991B29 /* XCRemoteSwiftPackageReference "Swoir" */,
+				C2E2EA412C37237300078AAB /* XCRemoteSwiftPackageReference "Swoir" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -758,11 +761,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C273AF462B8654C000991B29 /* XCRemoteSwiftPackageReference "Swoir" */ = {
+		C2E2EA412C37237300078AAB /* XCRemoteSwiftPackageReference "Swoir" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Swoir/Swoir";
+			repositoryURL = "https://github.com/madztheo/Swoir";
 			requirement = {
-				branch = main;
+				branch = "v0.30.0-4";
 				kind = branch;
 			};
 		};
@@ -773,9 +776,13 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Swoir;
 		};
-		C273AF472B8654C000991B29 /* Swoir */ = {
+		C2E2EA3F2C35FA2A00078AAB /* Swoir */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C273AF462B8654C000991B29 /* XCRemoteSwiftPackageReference "Swoir" */;
+			productName = Swoir;
+		};
+		C2E2EA422C37237300078AAB /* Swoir */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2E2EA412C37237300078AAB /* XCRemoteSwiftPackageReference "Swoir" */;
 			productName = Swoir;
 		};
 /* End XCSwiftPackageProductDependency section */
