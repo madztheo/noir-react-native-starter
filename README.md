@@ -35,7 +35,7 @@ This app comes with a basic Noir circuit checking that the prover knows two priv
 1. Go into the `circuit` folder
 2. Edit the code of `main.nr` to your liking
 3. Don't forget to change the `Prover.toml` and `Verifier.toml` files to match the new circuit
-4. Make sure you have the version 0.19.4 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 0.19.4`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
+4. Make sure you have the version 0.30.0 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 0.30.0`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
 5. Run `nargo compile` to compile the circuit
 6. It will generate a new `circuit.json` file in `/circuit/target`, which is the one loaded by the app to generate proofs
 
@@ -45,4 +45,4 @@ Bear in mind that mobile phones have a limited amount of available RAM. The circ
 
 ## Noir version currently supported
 
-The current version of Noir supported by the app is 0.19.4
+The current version of Noir supported by the app is 0.30.0
