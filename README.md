@@ -12,9 +12,9 @@ The app integrates with the [Swoir library](https://github.com/Swoir/Swoir) to g
 
 ### Android
 
-As of today, the generation of proofs with Noir on Android is not operational. Support for it will be added soon.
+The app integrates some Kotlin code following a similar logic to Swoir, by taking the same type of inputs and the circuit manifest to generate proofs with Noir on Android. This part of the code will be exported soon in a separate library to simplify reusability.
 
-## Setup
+## General setup
 
 If you are unfamiliar with React Native, you can follow the [official guide](https://reactnative.dev/docs/environment-setup) to set up your environment.
 
@@ -22,11 +22,29 @@ For the rest follow the steps below:
 
 1. Clone the repository
 2. Run `npm install` to install the dependencies
-3. Run `cd ios && pod install` to install the pods for the iOS project
-4. Open the project in Xcode
-5. Make sure you see the `Swoir`, `SwoirCore` and `Swoirenberg` libraries in the `Package Dependencies` (if not please open an issue)
-6. Make sure you have a valid provisioning profile set up for the app in `Signing & Capabilities`
-7. Build & Run the app on your device
+
+## Setup on iOS
+
+1. Run `npx pod-install` to install the pods for the iOS project
+2. Open the project in Xcode
+3. Make sure you see the `Swoir`, `SwoirCore` and `Swoirenberg` libraries in the `Package Dependencies` (if not please open an issue)
+4. Make sure you have a valid provisioning profile set up for the app in `Signing & Capabilities`
+5. Build & Run the app on your device
+
+## Setup on Android
+
+1. Make sure to define the environment varialbes `ANDROID_HOME`, `NDK_VERSION` and `HOST_TAG`, they will help the build process to find Android NDK necessary to compile the native code. Example on MacOS:
+
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export NDK_VERSION=26.3.11579264
+export HOST_TAG=darwin-x86_64
+```
+
+2. Connect your Android device and check it is connected by running `npm run android-devices`. It should displayed the connected device as `device` in the list of devices attached.
+3. Run `npm run android` to build and run the app on your device
+
+**Note**: If you want to do a clean build, you can run `./scripts/clean-android.sh` before running `npm run android`
 
 ## How to replace the circuit
 

@@ -140,6 +140,7 @@ export default function SimpleProof() {
       <Text
         style={{
           textAlign: 'center',
+          color: '#6B7280',
           marginBottom: 20,
         }}>
         {getResult()}
@@ -218,6 +219,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     textAlign: 'center',
     fontWeight: '700',
+    color: '#151628',
     fontSize: 16,
     marginBottom: 5,
   },

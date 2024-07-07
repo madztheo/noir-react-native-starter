@@ -81,6 +81,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        externalNativeBuild {
+            ndk {
+                abiFilters += "arm64-v8a"
+            }
+        }
     }
     signingConfigs {
         debug {
@@ -108,7 +113,7 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
-
+    implementation("com.google.code.gson:gson:2.8.9")
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
@@ -117,3 +122,36 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
+def rustLibName = "noir_java" // Adjust based on your library name
+def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
+
+tasks.register("buildRust", Exec.class) {
+    workingDir(file("$rustLibPath"))
+    // Set the environment variables necessary for OpenSSL
+    commandLine("./set-env.sh")
+    // Android arm64
+    commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android", "-vvvv")
+    // Android arm
+    // commandLine("cargo", "build", "--release", "--target", "armv7-linux-androideabi")
+    // Android x86
+    // commandLine("cargo", "build", "--release", "--target", "i686-linux-android")
+    // Android x86_64
+    // commandLine("cargo", "build", "--release", "--target", "x86_64-linux-android")
+}
+
+tasks.register("copyRustLibs", Copy.class) {
+    // Copy the compiled library (.so file) to the appropriate JNI folder
+    from("$rustLibPath/target/aarch64-linux-android/release")
+    into("src/main/jniLibs/arm64-v8a")
+    include("lib${rustLibName}.so")
+}
+
+tasks.whenTaskAdded { task ->
+    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
+        task.dependsOn("buildRust")
+    }
+    if (task.name.matches(/merge.*JniLibFolders/)) {
+        task.dependsOn("copyRustLibs")
+    }
+}

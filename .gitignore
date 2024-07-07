@@ -68,3 +68,4 @@ yarn-error.log
 /circuit/target
 !/circuit/target/circuit.json
 /circuit/proofs
+/android/app/src/main/jniLibs
