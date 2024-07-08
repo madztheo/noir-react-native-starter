@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/madztheo/Swoir",
       "state" : {
-        "branch" : "v0.30.0-4",
-        "revision" : "236942e1a8956e29a655f3b5b8812c3b3494a12b"
+        "branch" : "main",
+        "revision" : "d42b58d64eb3fb6ef0ba351dd03bdda00d579322"
       }
     },
     {

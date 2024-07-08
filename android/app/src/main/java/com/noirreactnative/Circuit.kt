@@ -34,6 +34,7 @@ data class Type(
     // struct, array, field, integer, string
     val kind: String,
     val path: String?,
+    val type: Type?,
     val fields: List<Parameter>?,
     val length: Double?,
     val sign: String?,
@@ -66,12 +67,41 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
 
     fun prove(initialWitness: Map<String, Any>): Proof {
         val witness = generateWitnessMap(initialWitness, manifest.abi.parameters, 0)
-        Log.d("WITNESS", witness.toString())
         return Noir.prove(bytecode, witness)
     }
 
     fun verify(proof: Proof): Boolean {
         return Noir.verify(bytecode, proof)
+    }
+
+    private fun flattenMultiDimensionalArray(array: List<Any>): List<Any> {
+        val flattenedArray = mutableListOf<Any>()
+        for (element in array) {
+            if (element is List<*>) {
+                flattenedArray.addAll(flattenMultiDimensionalArray(element as List<Any>))
+            } else {
+                flattenedArray.add(element)
+            }
+        }
+        return flattenedArray
+    }
+
+    private fun computeTotalLengthOfArray(parameter_type: Type): Int {
+        when(parameter_type.kind) {
+            "array" -> {
+                return parameter_type.length!!.toInt() * computeTotalLengthOfArray(parameter_type.type!!)
+            }
+            "field", "integer" -> {
+                return 1
+            }
+            "string" -> {
+                return parameter_type.length!!.toInt()
+            }
+            "struct" -> {
+                return parameter_type.fields!!.map { computeTotalLengthOfArray(it.type) }.sum()
+            }
+        }
+        return 0
     }
 
     private fun generateWitnessMap(initialWitness: Map<String, Any>, parameters: List<Parameter>, startIndex: Long): HashMap<String, String> {
@@ -97,7 +127,6 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
                         if (!value.startsWith("0x")) {
                             throw IllegalArgumentException("Expected hexadecimal number for parameter: ${parameter.name}")
                         }
-                        Log.d("Hex value", value)
                         witness[index.toString()] = value
                         index++
                     
@@ -107,13 +136,30 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
                 }
                 "array" -> {
                     if (value is List<*>) {
-                        val array = value as List<Double>
-                        if (array.size != parameter.type.length!!.toInt()) {
+                        // Flatten the multi-dimensional array (if not multi-dimensional, it will return the same array)
+                        var flattenedArray = flattenMultiDimensionalArray(value as List<Any>)
+                        // Compute the expected length of the array
+                        var totalLength = computeTotalLengthOfArray(parameter.type)
+                        val array = flattenedArray as List<Any>
+                        if (array.size != totalLength) {
                             throw IllegalArgumentException("Expected array of length ${parameter.type.length} for parameter: ${parameter.name}")
                         }
                         for (element in array) {
-                            witness[index.toString()] = "0x${(element.toLong()).toString(16)}"
-                            index++
+                            if (element is Double) {
+                                witness[index.toString()] = "0x${(element.toLong()).toString(16)}"
+                                index++
+                            } else if(element is String) {
+                                // Check the number is in hexadecimal format
+                                if (!element.startsWith("0x")) {
+                                    throw IllegalArgumentException("Expected hexadecimal number for parameter: ${parameter.name}")
+                                }
+                                witness[index.toString()] = element
+                                index++
+                            
+                            } else {
+                                throw IllegalArgumentException("Unexpected array type for parameter: ${parameter.name}")
+                            }
+
                         }
                     } else {
                         throw IllegalArgumentException("Expected array of integers for parameter: ${parameter.name}")
@@ -136,7 +182,7 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
                         // Transform the string into a byte array
                         val array = value.toByteArray()
                         if (array.size != parameter.type.length!!.toInt()) {
-                            throw IllegalArgumentException("Expected array of length ${parameter.type.length} for parameter: ${parameter.name}")
+                            throw IllegalArgumentException("Expected string of length ${parameter.type.length} for parameter: ${parameter.name}")
                         }
                         for (element in array) {
                             witness[index.toString()] = "0x${(element.toLong()).toString(16)}"
