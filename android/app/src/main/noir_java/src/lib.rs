@@ -54,12 +54,9 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
             .to_str()
             .expect("Failed to convert value to Rust string");
 
-        let int_value = i128::from_str_radix(value.trim_start_matches("0x"), 16)
-            .expect("Failed to parse value as integer");
-
         witness_map.insert(
             Witness(key.parse().expect("Failed to parse key")),
-            FieldElement::try_from(int_value).expect("Failed to parse value"),
+            FieldElement::try_from_str(value).expect("Failed to parse value"),
         );
     }
 

@@ -70,7 +70,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             promise.resolve(result)
         } catch (e: Exception) {
             Log.d("PROOF_GENERATION_ERROR", e.toString())
-            promise.reject("PROOF_GENERATION_ERROR", "Unable to generateh the proof")
+            promise.reject("PROOF_GENERATION_ERROR", "Unable to generate the proof")
         }
     }
 
