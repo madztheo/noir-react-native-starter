@@ -4,7 +4,9 @@ use jni::JNIEnv;
 use noir_rs::{
     native_types::{Witness, WitnessMap},
     prove::prove,
+    prove::prove_honk,
     verify::verify,
+    verify::verify_honk,
     FieldElement,
     srs::netsrs::NetSrs
 };
@@ -18,6 +20,7 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
     _class: JClass<'local>,
     circuit_bytecode_jstr: JString<'local>,
     witness_jobject: JObject<'local>,
+    proof_type_jstr: JString<'local>,
 ) -> jobject {
     //android_log::init("NoirJava").unwrap();
     // Use more descriptive variable names and handle errors gracefully
@@ -34,6 +37,13 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
         .expect("Failed to get string from JString")
         .to_str()
         .expect("Failed to convert Java string to Rust string")
+        .to_owned();
+
+    let proof_type = env
+        .get_string(&proof_type_jstr)
+        .expect("Failed to get proof type string")
+        .to_str()
+        .expect("Failed to convert proof type to Rust string")
         .to_owned();
 
     let mut witness_map = WitnessMap::new();
@@ -61,7 +71,11 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
     }
 
     //debug!("Witness map: {:?}", witness_map);
-    let (proof, vk) = prove(circuit_bytecode, witness_map).expect("Proof generation failed");
+    let (proof, vk) = if proof_type == "honk" { 
+        prove_honk(circuit_bytecode, witness_map).expect("Proof generation failed") 
+    } else { 
+        prove(circuit_bytecode, witness_map).expect("Proof generation failed") 
+    };
 
     let proof_str = hex::encode(proof);
     let vk_str = hex::encode(vk);
@@ -93,6 +107,7 @@ pub extern "system" fn Java_noir_Noir_verify<'local>(
     _class: JClass<'local>,
     circuit_bytecode_jstr: JString<'local>,
     mut proof_jobject: JObject<'local>,
+    proof_type_jstr: JString<'local>,
 ) -> jboolean {
     let circuit_bytecode = env
         .get_string(&circuit_bytecode_jstr)
@@ -131,7 +146,18 @@ pub extern "system" fn Java_noir_Noir_verify<'local>(
     let proof = hex::decode(proof_str).expect("Failed to decode proof");
     let verification_key = hex::decode(vk_str).expect("Failed to decode verification key");
 
-    let verdict = verify(circuit_bytecode, proof, verification_key).expect("Verification failed");
+    let proof_type = env
+        .get_string(&proof_type_jstr)
+        .expect("Failed to get proof type string")
+        .to_str()
+        .expect("Failed to convert proof type to Rust string")
+        .to_owned();
+
+    let verdict = if proof_type == "honk" {
+        verify_honk(circuit_bytecode, proof, verification_key).expect("Verification failed")
+    } else {
+        verify(circuit_bytecode, proof, verification_key).expect("Verification failed")
+    };
 
     jboolean::from(verdict)
 }

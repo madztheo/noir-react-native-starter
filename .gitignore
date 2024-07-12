@@ -65,7 +65,8 @@ yarn-error.log
 # testing
 /coverage
 .env
-/circuit/target
-!/circuit/target/circuit.json
-/circuit/proofs
+/circuits/**/target/debug**
+/circuits/**/target/**.gz
+/circuits/**/target/vk**
+/circuits/**/proofs
 /android/app/src/main/jniLibs

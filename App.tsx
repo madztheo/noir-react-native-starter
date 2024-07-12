@@ -4,7 +4,9 @@ import React from 'react';
 import {TamaguiProvider} from 'tamagui';
 import Home from './pages/home';
 import {NavigationContainer} from '@react-navigation/native';
-import SimpleProof from './pages/simple-proof';
+import ProductProof from './pages/product-proof';
+import PedersenProof from './pages/pedersen-proof';
+import Secp256r1Proof from './pages/secp256r1-proof';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +20,9 @@ function App(): React.JSX.Element {
             headerShown: false,
           }}>
           <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="SimpleProof" component={SimpleProof} />
+          <Stack.Screen name="ProductProof" component={ProductProof} />
+          <Stack.Screen name="PedersenProof" component={PedersenProof} />
+          <Stack.Screen name="Secp256r1Proof" component={Secp256r1Proof} />
         </Stack.Navigator>
       </NavigationContainer>
     </TamaguiProvider>

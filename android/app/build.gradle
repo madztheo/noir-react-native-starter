@@ -129,7 +129,31 @@ def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
 tasks.register("buildRust", Exec.class) {
     workingDir(file("$rustLibPath"))
     // Set the environment variables necessary for OpenSSL
-    commandLine("./set-env.sh")
+    def ANDROID_HOME = System.getenv("ANDROID_HOME")
+    def NDK_VERSION = System.getenv("NDK_VERSION")
+    def HOST_TAG = System.getenv("HOST_TAG")
+    def PATH = System.getenv("PATH")
+    def ANDROID_NDK_HOME = "$ANDROID_HOME/ndk/$NDK_VERSION"
+    def TOOLCHAIN = "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG"
+    def TARGET = "aarch64-linux-android"
+    def API = "33"
+    def CC = "$TOOLCHAIN/bin/$TARGET$API-clang"
+
+    environment "ANDROID_NDK_HOME", "$ANDROID_NDK_HOME"
+    environment "TOOLCHAIN", "$TOOLCHAIN"
+    environment "TARGET", "$TARGET"
+    environment "API", "$API"
+    environment "AR", "$TOOLCHAIN/bin/llvm-ar"
+    environment "CC", "$CC"
+    environment "AS", "$CC"
+    environment "CXX", "$TOOLCHAIN/bin/$TARGET$API-clang++"
+    environment "LD", "$TOOLCHAIN/bin/ld"
+    environment "RANLIB", "$TOOLCHAIN/bin/llvm-ranlib"
+    environment "STRIP", "$TOOLCHAIN/bin/llvm-strip"
+    environment "PATH", "$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
+    environment "PATH", "$PATH:$TOOLCHAIN/bin"
+    environment "CMAKE_TOOLCHAIN_FILE_aarch64_linux_android", "$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
+    environment "ANDROID_ABI", "arm64-v8a"
     // Android arm64
     commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android", "-vvvv")
     // Android arm

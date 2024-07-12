@@ -48,14 +48,17 @@ export HOST_TAG=darwin-x86_64
 
 ## How to replace the circuit
 
-This app comes with a basic Noir circuit checking that the prover knows two private inputs `a` and `b` such that the public input `result` is equal to their product `a * b`. You can replace this circuit with your own by following these steps:
+This app comes with a basic Noir circuit checking that the prover knows two private inputs `a` and `b` such that the public input `result` is equal to their product `a * b`, a circuit verifying a secp256r1 signature and one doing multiple rounds of pedersen hashing. You can replace any of these circuits with your own by following these steps:
 
-1. Go into the `circuit` folder
-2. Edit the code of `main.nr` to your liking
-3. Don't forget to change the `Prover.toml` and `Verifier.toml` files to match the new circuit
-4. Make sure you have the version 0.30.0 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 0.30.0`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
-5. Run `nargo compile` to compile the circuit
-6. It will generate a new `circuit.json` file in `/circuit/target`, which is the one loaded by the app to generate proofs
+1. Go into the `circuits` folder
+2. Create a new folder for your circuit such as `my_circuit`
+3. Create a `Nargo.toml` file in this folder following the structure of the `Nargo.toml` file in the other subfolders of the `circuits` folder. Don't forget to change the name of the circuit in the `name` field
+4. Create a `src` folder and create a `main.nr` file in it
+5. Make sure you have the version 0.30.0 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 0.30.0`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
+6. Write your Noir code in `main.nr` and run `nargo check` to generate the `Prover.toml` and `Verifier.toml` files
+7. Run `nargo compile` to compile the circuit
+8. It will generate a new `<your_circuit_name>.json` file in `/target`
+9. You can then replace the import in the Javascript code to load this circuit instead
 
 ## Note on performance
 

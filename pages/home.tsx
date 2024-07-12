@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, View} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import {useNavigation} from '@react-navigation/native';
@@ -23,18 +23,47 @@ export default function Home() {
         Click on the button below to try out the demo and generate your first ZK
         proof straight from your phone!
       </Text>
-      <Button
-        onPress={() => {
-          navigation.navigate('SimpleProof');
+      <View
+        style={{
+          gap: 20,
         }}>
-        <Text
-          style={{
-            color: 'white',
-            fontWeight: '700',
+        <Button
+          onPress={() => {
+            navigation.navigate('ProductProof');
           }}>
-          Continue
-        </Text>
-      </Button>
+          <Text
+            style={{
+              color: 'white',
+              fontWeight: '700',
+            }}>
+            Proof of product
+          </Text>
+        </Button>
+        <Button
+          onPress={() => {
+            navigation.navigate('PedersenProof');
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              fontWeight: '700',
+            }}>
+            Proof of Pedersen Hash
+          </Text>
+        </Button>
+        <Button
+          onPress={() => {
+            navigation.navigate('Secp256r1Proof');
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              fontWeight: '700',
+            }}>
+            Proof of secp256r1
+          </Text>
+        </Button>
+      </View>
     </MainLayout>
   );
 }

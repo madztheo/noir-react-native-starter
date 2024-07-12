@@ -8,7 +8,10 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "android-devices": "adb devices"
+    "android-devices": "adb devices",
+    "ios-device": "npx react-native run-ios --udid $DEVICE_ID",
+    "ios-device-release": "npx react-native run-ios --configuration Release --udid $DEVICE_ID",
+    "ios-list-devices": "xcrun xctrace list devices"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "^7.6.2",

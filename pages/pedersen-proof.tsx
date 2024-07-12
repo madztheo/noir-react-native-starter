@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
@@ -7,55 +7,56 @@ import Input from '../components/Input';
 import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
-import circuit from '../circuit/target/circuit.json';
+import circuit from '../circuits/pedersen/target/pedersen.json';
+import {formatProof} from '../lib';
 
-const formatProof = (proof: string) => {
-  const length = proof.length;
-  return `${proof.substring(0, 100)}...${proof.substring(
-    length - 100,
-    length,
-  )}`;
-};
-
-export default function SimpleProof() {
+export default function PedersenProof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
   const [proof, setProof] = useState('');
   const [vkey, setVkey] = useState('');
   const [generatingProof, setGeneratingProof] = useState(false);
   const [verifyingProof, setVerifyingProof] = useState(false);
-  const [factors, setFactors] = useState({
+  const [inputs, setInputs] = useState({
     a: '',
     b: '',
   });
+  const [provingTime, setProvingTime] = useState(0);
+  const [circuitLoaded, setCircuitLoaded] = useState(false);
+
+  useEffect(() => {
+    preloadCircuit(circuit, true).then(() => {
+      setCircuitLoaded(true);
+    });
+  }, []);
 
   const onGenerateProof = async () => {
-    const result = getResult();
-    if (!factors.a || !factors.b || !result) {
-      Alert.alert('Invalid input', 'Please enter the factors first');
+    if (!circuitLoaded) {
+      Alert.alert('Circuit not loaded', 'Please wait for the circuit to load');
       return;
     }
-    if (factors.a === '1' || factors.b === '1') {
-      Alert.alert('Invalid input', 'The factors cannot be 1');
+    if (!inputs.a || !inputs.b) {
+      Alert.alert('Invalid input', 'Please enter the inputs first');
       return;
     }
     setGeneratingProof(true);
     try {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
+      const start = Date.now();
       const {
         fullProof,
         proof: _proof,
         vkey: _vkey,
       } = await generateProof(
         {
-          a: Number(factors.a),
-          b: Number(factors.b),
-          result,
+          a: Number(inputs.a),
+          b: Number(inputs.b),
         },
-        // We load the circuit at the same time as the proof generation
-        // but you can use the preloadCircuit function to load it beforehand
-        circuit,
+        undefined,
+        'honk',
       );
+      const end = Date.now();
+      setProvingTime(end - start);
       setProofAndInputs(fullProof);
       setProof(_proof);
       setVkey(_vkey);
@@ -71,7 +72,12 @@ export default function SimpleProof() {
     try {
       // No need to provide the circuit here, as it was already loaded
       // during the proof generation
-      const verified = await verifyProof(proofAndInputs, vkey);
+      const verified = await verifyProof(
+        proofAndInputs,
+        vkey,
+        undefined,
+        'honk',
+      );
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {
@@ -84,15 +90,6 @@ export default function SimpleProof() {
     setVerifyingProof(false);
   };
 
-  const getResult = () => {
-    const factorA = Number(factors.a);
-    const factorB = Number(factors.b);
-    if (!isNaN(factorA) && !isNaN(factorB)) {
-      return factorA * factorB;
-    }
-    return '';
-  };
-
   return (
     <MainLayout canGoBack={true}>
       <Text
@@ -103,10 +100,10 @@ export default function SimpleProof() {
           textAlign: 'center',
           color: '#6B7280',
         }}>
-        Enter two factors and generate a proof that you know the product of the
-        two factors without revealing the factors themselves.
+        Prove that you know the pedersen hash of two numbers without revealing
+        them{'\n'}(500 rounds ~ 150k constraints)
       </Text>
-      <Text style={styles.sectionTitle}>Factors</Text>
+      <Text style={styles.sectionTitle}>Numbers</Text>
       <View
         style={{
           flexDirection: 'row',
@@ -115,36 +112,27 @@ export default function SimpleProof() {
           marginBottom: 20,
         }}>
         <Input
-          value={factors.a}
+          value={inputs.a}
           style={{
             flex: 1,
           }}
-          placeholder="1st factor"
+          placeholder="1st number"
           onChangeText={val => {
-            setFactors(prev => ({...prev, a: val}));
+            setInputs(prev => ({...prev, a: val}));
           }}
         />
-        <Text>x</Text>
+        <Text>&</Text>
         <Input
           style={{
             flex: 1,
           }}
-          value={factors.b}
-          placeholder="2nd factor"
+          value={inputs.b}
+          placeholder="2nd number"
           onChangeText={val => {
-            setFactors(prev => ({...prev, b: val}));
+            setInputs(prev => ({...prev, b: val}));
           }}
         />
       </View>
-      <Text style={styles.sectionTitle}>Outcome</Text>
-      <Text
-        style={{
-          textAlign: 'center',
-          color: '#6B7280',
-          marginBottom: 20,
-        }}>
-        {getResult()}
-      </Text>
       {proof && (
         <>
           <Text style={styles.sectionTitle}>Proof</Text>
@@ -160,9 +148,24 @@ export default function SimpleProof() {
           </Text>
         </>
       )}
+      {proof && (
+        <>
+          <Text style={styles.sectionTitle}>Proving time</Text>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '400',
+              textAlign: 'center',
+              color: '#6B7280',
+              marginBottom: 20,
+            }}>
+            {provingTime} ms
+          </Text>
+        </>
+      )}
       {!proof && (
         <Button
-          disabled={generatingProof}
+          disabled={generatingProof || !circuitLoaded}
           onPress={() => {
             onGenerateProof();
           }}>

@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swoircore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/madztheo/SwoirCore.git",
+      "state" : {
+        "revision" : "ae2dee39b1d8e578f1d1bd7294ee79a61fb5a890",
+        "version" : "0.2.0"
+      }
+    }
+  ],
+  "version" : 2
+}

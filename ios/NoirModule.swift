@@ -72,18 +72,29 @@ class NoirModule: NSObject {
     }
   }
   
-  @objc(preloadCircuit:resolve:reject:)
-  func preloadCircuit(_ circuitData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    do {
-      try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
-      resolve(["success": true])
-    } catch {
-      reject("CIRCUIT_LOADING_ERROR", "An error occurred while loading the circuit", error)
+  @objc(preloadCircuit:runInBackground:resolve:reject:)
+  func preloadCircuit(_ circuitData: String, runInBackground: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    if runInBackground {
+      DispatchQueue.global(qos: .background).async {
+        do {
+          try self.loadCircuit(circuitData: circuitData.data(using: .utf8)!)
+          resolve(["success": true])
+        } catch {
+          reject("CIRCUIT_LOADING_ERROR", "An error occurred while loading the circuit", error)
+        }
+      }
+    } else {
+      do {
+        try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
+        resolve(["success": true])
+      } catch {
+        reject("CIRCUIT_LOADING_ERROR", "An error occurred while loading the circuit", error)
+      }
     }
   }
  
-  @objc(prove:circuitData:resolve:reject:)
-  func prove(_ inputs: [String: Any], circuitData: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(prove:circuitData:proofType:resolve:reject:)
+  func prove(_ inputs: [String: Any], circuitData: String?, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       if circuitData != nil {
         try loadCircuit(circuitData: circuitData!.data(using: .utf8)!)
@@ -92,7 +103,7 @@ class NoirModule: NSObject {
         throw CircuitError.undefinedCircuit
       }
       
-      let proof = try circuit!.prove(inputs)
+      let proof = try circuit!.prove(inputs, proof_type: proofType ?? "plonk")
       let hexProof = proof.proof.hexEncodedString()
       let hexVkey = proof.vkey.hexEncodedString()
       
@@ -103,8 +114,8 @@ class NoirModule: NSObject {
     }
   }
   
-  @objc(verify:vkey:circuitData:resolve:reject:)
-  func verify(_ proof: String, vkey: String, circuitData: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(verify:vkey:circuitData:proofType:resolve:reject:)
+  func verify(_ proof: String, vkey: String, circuitData: String?, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       if circuitData != nil {
         try loadCircuit(circuitData: circuitData!.data(using: .utf8)!)
@@ -114,7 +125,7 @@ class NoirModule: NSObject {
       }
       
       let wholeProof = Proof(proof: proof.hexadecimal!, vkey: vkey.hexadecimal!)
-      let verified = try circuit!.verify(wholeProof)
+      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk")
       
       resolve(["verified": verified])
     } catch {

@@ -65,13 +65,13 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
         }
     }
 
-    fun prove(initialWitness: Map<String, Any>): Proof {
+    fun prove(initialWitness: Map<String, Any>, proofType: String): Proof {
         val witness = generateWitnessMap(initialWitness, manifest.abi.parameters, 0)
-        return Noir.prove(bytecode, witness)
+        return Noir.prove(bytecode, witness, proofType)
     }
 
-    fun verify(proof: Proof): Boolean {
-        return Noir.verify(bytecode, proof)
+    fun verify(proof: Proof, proofType: String): Boolean {
+        return Noir.verify(bytecode, proof, proofType)
     }
 
     private fun flattenMultiDimensionalArray(array: List<Any>): List<Any> {

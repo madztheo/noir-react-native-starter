@@ -40,18 +40,31 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }
     }
 
-    @ReactMethod fun preloadCircuit(circuitData: String, promise: Promise) {
-        loadCircuit(circuitData, promise)
+    @ReactMethod fun preloadCircuit(circuitData: String, runInBackground: Boolean?, promise: Promise) {
+        if (runInBackground == true) {
+            Thread {
+                var succeeded = loadCircuit(circuitData, promise)
+                if (succeeded) {
+                    var result: WritableMap = Arguments.createMap()
+                    result.putBoolean("success", succeeded)
+                    promise.resolve(result)
+                }
+            }.start()
+        } else {
+            var succeeded = loadCircuit(circuitData, promise)
+            if (succeeded) {
+                var result: WritableMap = Arguments.createMap()
+                result.putBoolean("success", succeeded)
+                promise.resolve(result)
+            }
+        }
      }
 
-    @ReactMethod fun prove(inputs: ReadableMap, circuitData: String?, promise: Promise) {
-        if (circuit == null) {
-            if (circuitData == null) {
-                promise.reject("CIRCUIT_DATA_UNDEFINED", "Circuit data is undefined. Please provide the circuit data to generate the proof")
-                return;
-            }
+    @ReactMethod fun prove(inputs: ReadableMap, circuitData: String?, proofType: String?, promise: Promise) {
+        if (circuitData != null) {
             var succeeded = loadCircuit(circuitData!!, promise)
             if (succeeded != true) {
+                promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
                 return;
             }
         }
@@ -62,7 +75,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
         try {
             var gson = Gson()
-            var proof: Proof? = circuit?.prove(inputs.toHashMap())
+            var proof: Proof? = circuit?.prove(inputs.toHashMap(), proofType ?: "plonk")
 
             var result: WritableMap = Arguments.createMap()
             result.putString("proof", proof!!.proof)
@@ -74,14 +87,14 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }
     }
 
-    @ReactMethod fun verify(proof: String, vkey: String, circuitData: String?, promise: Promise) {
-        if (circuit == null) {
-            if (circuitData == null) {
-                promise.reject("CIRCUIT_DATA_UNDEFINED", "Circuit data is undefined. Please provide the circuit data to verify the proof")
-                return;
-            }
+    @ReactMethod fun verify(proof: String, vkey: String, circuitData: String?, proofType: String?, promise: Promise) {
+        if (circuitData != null) {
             var succeeded = loadCircuit(circuitData!!, promise)
             if (succeeded != true) {
+                if (succeeded != true) {
+                    promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
+                    return;
+                }
                 return;
             }
         }
@@ -92,7 +105,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
         try {
             var proof: Proof = Proof(proof, vkey)
-            var verified: Boolean? = circuit?.verify(proof)
+            var verified: Boolean? = circuit?.verify(proof, proofType ?: "plonk")
             var result: WritableMap = Arguments.createMap()
             result.putBoolean("verified", verified!!)
             promise.resolve(result)
