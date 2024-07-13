@@ -1,7 +1,6 @@
 import {NativeModules} from 'react-native';
-import {Buffer} from 'buffer';
-import elliptic from 'elliptic';
-import {base64ToBytes, hexToBytes} from '.';
+import {base64ToHex, bigIntToBytes, bytesToBigInt, hexToBytes} from '.';
+import {p256} from '@noble/curves/p256';
 
 const LINKING_ERROR = 'Enclave Module is not linked';
 
@@ -17,51 +16,55 @@ const EnclaveModule = NativeModules.EnclaveModule
     );
 
 const ALIAS: string = 'com.dry.app';
-const CURVE = new elliptic.ec('p256');
 
-function derToRS(der: number[]): [number[], number[]] {
-  var offset: number = 3;
-  var dataOffset;
+const derPrefix = '3059301306072a8648ce3d020106082a8648ce3d03010703420004';
 
-  if (der[offset] == 0x21) {
-    dataOffset = offset + 2;
-  } else {
-    dataOffset = offset + 1;
-  }
-  const r = der.slice(dataOffset, dataOffset + 32);
-  offset = offset + der[offset] + 1 + 1;
-  if (der[offset] == 0x21) {
-    dataOffset = offset + 2;
-  } else {
-    dataOffset = offset + 1;
-  }
-  const s = der.slice(dataOffset, dataOffset + 32);
-  return [r, s];
+export function isDERPubKey(pubKeyHex: string): boolean {
+  return (
+    pubKeyHex.startsWith(derPrefix) &&
+    pubKeyHex.length === derPrefix.length + 128
+  );
 }
 
-export async function formatSignature(base64Signature: string) {
-  const signatureParsed = derToRS(base64ToBytes(base64Signature));
-  const signature = [...signatureParsed[0], ...signatureParsed[1].slice(2)];
-  return signature;
-}
-
-const formatPublicKey = (
-  publicKeyBase64: string,
-): {
+export function formatPublicKey(base64Signature: string): {
   x: number[];
   y: number[];
-} => {
-  const publicKeyBuffer = Buffer.from(publicKeyBase64, 'base64');
-  const publicKeyWithoutHeader = Uint8Array.prototype.slice.call(
-    publicKeyBuffer,
-    26,
+} {
+  const pubKeyHex = base64ToHex(base64Signature);
+  if (!isDERPubKey(pubKeyHex)) {
+    throw new Error('Invalid public key format');
+  }
+
+  const pubKey = pubKeyHex.substring(derPrefix.length);
+  if (pubKey.length !== 128) {
+    throw new Error('Invalid public key length');
+  }
+
+  const key1 = `0x${pubKey.substring(0, 64)}`;
+  const key2 = `0x${pubKey.substring(64)}`;
+  return {x: hexToBytes(key1), y: hexToBytes(key2)};
+}
+
+export function parseAndNormalizeSig(derSig: string): number[] {
+  const parsedSignature = p256.Signature.fromDER(derSig);
+  const bSig = hexToBytes(`0x${parsedSignature.toCompactHex()}`);
+  if (bSig.length !== 64) {
+    throw new Error('Invalid signature length');
+  }
+  const bR = bSig.slice(0, 32);
+  const bS = bSig.slice(32);
+
+  // Avoid malleability. Ensure low S (<= N/2 where N is the curve order)
+  const r = bytesToBigInt(bR);
+  let s = bytesToBigInt(bS);
+  const n = BigInt(
+    '0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551',
   );
-  const publicKey = CURVE.keyFromPublic(publicKeyWithoutHeader).getPublic();
-  return {
-    x: publicKey.getX().toArray('be', 32),
-    y: publicKey.getY().toArray('be', 32),
-  };
-};
+  if (s > n / 2n) {
+    s = n - s;
+  }
+  return [...bigIntToBytes(r), ...bigIntToBytes(s)];
+}
 
 export async function getPublicKey(): Promise<{
   x: number[];
@@ -85,5 +88,5 @@ export async function deleteKeyPair(): Promise<void> {
 
 export async function signMessage(data: string): Promise<number[]> {
   const signatureBase64 = await EnclaveModule.signMessage(ALIAS, data);
-  return formatSignature(signatureBase64);
+  return parseAndNormalizeSig(base64ToHex(signatureBase64));
 }

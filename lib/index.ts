@@ -31,3 +31,18 @@ export function bytesToHex(bytes: number[]): string {
 export function reverseArray(arr: any[]) {
   return arr.slice().reverse();
 }
+
+export function base64ToHex(base64: string): string {
+  return bytesToHex(base64ToBytes(base64));
+}
+
+export function bytesToBigInt(bytes: number[]): bigint {
+  return BigInt(
+    `0x${bytes.map(b => b.toString(16).padStart(2, '0')).join('')}`,
+  );
+}
+
+export function bigIntToBytes(int: bigint): number[] {
+  const hex = int.toString(16);
+  return hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || [];
+}
