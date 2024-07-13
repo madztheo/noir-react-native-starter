@@ -24,6 +24,8 @@
 		C2E2EA4C2C3C34D400078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA4B2C3C34D400078AAB /* Swoir */; };
 		C2E2EA522C3FAA5E00078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA512C3FAA5E00078AAB /* Swoir */; };
 		C2E2EA552C4188AE00078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA542C4188AE00078AAB /* Swoir */; };
+		C2E2EA5C2C4204C600078AAB /* EnclaveModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C2E2EA5A2C4204C600078AAB /* EnclaveModule.m */; };
+		C2E2EA5D2C4204C600078AAB /* EnclaveModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E2EA5B2C4204C600078AAB /* EnclaveModule.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +58,8 @@
 		C273AF4E2B86595200991B29 /* NoirModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoirModule.swift; sourceTree = "<group>"; };
 		C273AF512B8659EF00991B29 /* NoirModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoirModule.m; sourceTree = "<group>"; };
 		C273AF572B865E9400991B29 /* NoirReactNative-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NoirReactNative-Bridging-Header.h"; sourceTree = "<group>"; };
+		C2E2EA5A2C4204C600078AAB /* EnclaveModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EnclaveModule.m; sourceTree = "<group>"; };
+		C2E2EA5B2C4204C600078AAB /* EnclaveModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnclaveModule.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -105,6 +109,8 @@
 		13B07FAE1A68108700A75B9A /* NoirReactNative */ = {
 			isa = PBXGroup;
 			children = (
+				C2E2EA5A2C4204C600078AAB /* EnclaveModule.m */,
+				C2E2EA5B2C4204C600078AAB /* EnclaveModule.swift */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -428,6 +434,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2E2EA5D2C4204C600078AAB /* EnclaveModule.swift in Sources */,
+				C2E2EA5C2C4204C600078AAB /* EnclaveModule.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				C273AF522B8659EF00991B29 /* NoirModule.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

@@ -7,7 +7,13 @@ import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/secp256r1/target/secp256r1.json';
-import {formatProof} from '../lib';
+import {formatProof, hexToBytes, reverseArray, stringToBytes} from '../lib';
+import {
+  generateKeyPair,
+  getPublicKey,
+  signMessage,
+} from '../lib/secure-enclave';
+import {sha256} from 'ethers/lib/utils';
 
 export default function Secp256r1Proof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
@@ -22,35 +28,72 @@ export default function Secp256r1Proof() {
     try {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
+      let publicKey: {
+        x: number[];
+        y: number[];
+      };
+      try {
+        publicKey = await getPublicKey();
+      } catch (err) {
+        publicKey = await generateKeyPair();
+        return;
+      }
+      const messageBytes = stringToBytes('Hello Noir');
+      const messageHash = sha256(messageBytes);
+      const signature = await signMessage('Hello Noir');
+      //const signature = await signMessage(messageHash);
+      // Convert to bytes array
+      console.log('messageHash', messageHash);
+      const messageHashArray = hexToBytes(messageHash);
       const start = Date.now();
-      const {
+      console.log('publicKey', publicKey);
+      console.log('signature', signature);
+      console.log('messageHashArray', messageHashArray);
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 2; j++) {
+          for (let k = 0; k < 2; k++) {
+            try {
+              const {
+                fullProof,
+                proof: _proof,
+                vkey: _vkey,
+              } = await generateProof(
+                {
+                  public_key_x:
+                    i === 0 ? publicKey.x : reverseArray(publicKey.x),
+                  public_key_y:
+                    i === 0 ? publicKey.y : reverseArray(publicKey.y),
+                  signature: j === 0 ? signature : reverseArray(signature),
+                  message_hash:
+                    k === 0 ? messageHashArray : reverseArray(messageHashArray),
+                },
+                // We load the circuit at the same time as the proof generation
+                // but you can use the preloadCircuit function to load it beforehand
+                circuit,
+                'plonk',
+              );
+              const end = Date.now();
+              setProvingTime(end - start);
+              setProofAndInputs(fullProof);
+              setProof(_proof);
+              setVkey(_vkey);
+              Alert.alert('Proof generated', 'Proof generated successfully');
+            } catch (error) {
+              console.error('Error', error);
+            }
+          }
+        }
+      }
+      /*const {
         fullProof,
         proof: _proof,
         vkey: _vkey,
       } = await generateProof(
         {
-          public_key_x: [
-            8, 115, 220, 188, 4, 148, 236, 206, 160, 168, 66, 167, 49, 172, 127,
-            40, 4, 237, 255, 39, 134, 80, 45, 198, 75, 120, 226, 225, 25, 186,
-            167, 166,
-          ],
-          public_key_y: [
-            48, 244, 109, 4, 181, 31, 195, 252, 151, 68, 109, 62, 232, 223, 145,
-            160, 192, 244, 214, 76, 233, 105, 250, 65, 97, 118, 181, 238, 149,
-            188, 97, 227,
-          ],
-          signature: [
-            135, 158, 138, 110, 148, 39, 150, 7, 79, 143, 70, 22, 225, 192, 232,
-            217, 48, 173, 57, 165, 91, 74, 239, 134, 249, 242, 221, 162, 85,
-            153, 67, 91, 111, 240, 37, 162, 69, 238, 167, 234, 236, 104, 222,
-            55, 111, 236, 54, 58, 132, 9, 115, 16, 60, 28, 253, 228, 112, 42,
-            248, 193, 157, 7, 246, 233,
-          ],
-          message_hash: [
-            137, 176, 207, 34, 13, 133, 76, 21, 244, 143, 220, 18, 201, 230, 9,
-            192, 75, 133, 105, 73, 233, 97, 9, 164, 200, 116, 62, 82, 146, 207,
-            62, 147,
-          ],
+          public_key_x: publicKey.x,
+          public_key_y: publicKey.y,
+          signature: signature,
+          message_hash: messageHashArray,
         },
         // We load the circuit at the same time as the proof generation
         // but you can use the preloadCircuit function to load it beforehand
@@ -61,7 +104,7 @@ export default function Secp256r1Proof() {
       setProvingTime(end - start);
       setProofAndInputs(fullProof);
       setProof(_proof);
-      setVkey(_vkey);
+      setVkey(_vkey);*/
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
