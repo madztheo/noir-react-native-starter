@@ -6,7 +6,7 @@
       "location" : "https://github.com/madztheo/Swoir",
       "state" : {
         "branch" : "main",
-        "revision" : "8ba498398b359dc8502c48ff2112cc07cfa0faa2"
+        "revision" : "4488027386f35c1527a5ca72c8546ce1296c3d33"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/madztheo/Swoirenberg.git",
       "state" : {
-        "revision" : "7b978bb49c499510ccc4d06b64c4985d114c1fc4",
-        "version" : "0.30.0-5"
+        "revision" : "7659eaf1b931a590a035da313a53b695e2315c05",
+        "version" : "0.30.0-6"
       }
     }
   ],

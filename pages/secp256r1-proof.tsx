@@ -3,11 +3,12 @@ import React, {useState} from 'react';
 import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
-import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
+import {generateProof, verifyProof} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/secp256r1/target/secp256r1.json';
 import {formatProof} from '../lib';
+import {Circuit} from '../types';
 
 export default function Secp256r1Proof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
@@ -24,7 +25,7 @@ export default function Secp256r1Proof() {
       // await preloadCircuit(circuit);
       const start = Date.now();
       const {
-        fullProof,
+        proofWithPublicInputs,
         proof: _proof,
         vkey: _vkey,
       } = await generateProof(
@@ -54,13 +55,13 @@ export default function Secp256r1Proof() {
         },
         // We load the circuit at the same time as the proof generation
         // but you can use the preloadCircuit function to load it beforehand
-        circuit,
-        'plonk',
+        circuit as Circuit,
+        'honk',
       );
       const end = Date.now();
       setProvingTime(end - start);
-      setProofAndInputs(fullProof);
-      setProof(_proof);
+      setProofAndInputs(proofWithPublicInputs);
+      setProof(_proof!);
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -78,7 +79,7 @@ export default function Secp256r1Proof() {
         proofAndInputs,
         vkey,
         undefined,
-        'plonk',
+        'honk',
       );
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');

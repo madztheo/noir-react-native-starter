@@ -28,4 +28,10 @@ RCT_EXTERN_METHOD(verify:(NSString)proof
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
++ (BOOL)requiresMainQueueSetup
+{
+  return NO;
+}
+
+
 @end

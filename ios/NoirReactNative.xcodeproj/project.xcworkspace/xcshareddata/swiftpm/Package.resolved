@@ -1,12 +1,30 @@
 {
   "pins" : [
     {
+      "identity" : "swoir",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/madztheo/Swoir",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8ba498398b359dc8502c48ff2112cc07cfa0faa2"
+      }
+    },
+    {
       "identity" : "swoircore",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/madztheo/SwoirCore.git",
       "state" : {
         "revision" : "ae2dee39b1d8e578f1d1bd7294ee79a61fb5a890",
         "version" : "0.2.0"
+      }
+    },
+    {
+      "identity" : "swoirenberg",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/madztheo/Swoirenberg.git",
+      "state" : {
+        "revision" : "7b978bb49c499510ccc4d06b64c4985d114c1fc4",
+        "version" : "0.30.0-5"
       }
     }
   ],

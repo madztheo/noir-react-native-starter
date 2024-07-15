@@ -4,11 +4,12 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
+import {generateProof, verifyProof} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/product/target/product.json';
 import {formatProof} from '../lib';
+import {Circuit} from '../types';
 
 export default function ProductProof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
@@ -38,7 +39,7 @@ export default function ProductProof() {
       // await preloadCircuit(circuit);
       const start = Date.now();
       const {
-        fullProof,
+        proofWithPublicInputs,
         proof: _proof,
         vkey: _vkey,
       } = await generateProof(
@@ -49,13 +50,13 @@ export default function ProductProof() {
         },
         // We load the circuit at the same time as the proof generation
         // but you can use the preloadCircuit function to load it beforehand
-        circuit,
+        circuit as Circuit,
         'plonk',
       );
       const end = Date.now();
       setProvingTime(end - start);
-      setProofAndInputs(fullProof);
-      setProof(_proof);
+      setProofAndInputs(proofWithPublicInputs);
+      setProof(_proof!);
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));

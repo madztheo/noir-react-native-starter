@@ -4,11 +4,17 @@ import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import {generateProof, preloadCircuit, verifyProof} from '../lib/noir';
+import {
+  extractProof,
+  generateProof,
+  preloadCircuit,
+  verifyProof,
+} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/pedersen/target/pedersen.json';
 import {formatProof} from '../lib';
+import {Circuit} from '../types';
 
 export default function PedersenProof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
@@ -24,7 +30,7 @@ export default function PedersenProof() {
   const [circuitLoaded, setCircuitLoaded] = useState(false);
 
   useEffect(() => {
-    preloadCircuit(circuit, true).then(() => {
+    preloadCircuit(circuit as Circuit, true).then(() => {
       setCircuitLoaded(true);
     });
   }, []);
@@ -43,11 +49,7 @@ export default function PedersenProof() {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
       const start = Date.now();
-      const {
-        fullProof,
-        proof: _proof,
-        vkey: _vkey,
-      } = await generateProof(
+      const {proofWithPublicInputs, vkey: _vkey} = await generateProof(
         {
           a: Number(inputs.a),
           b: Number(inputs.b),
@@ -57,8 +59,11 @@ export default function PedersenProof() {
       );
       const end = Date.now();
       setProvingTime(end - start);
-      setProofAndInputs(fullProof);
-      setProof(_proof);
+      setProofAndInputs(proofWithPublicInputs);
+      // Use the extractProof function to separate the proof from the public inputs
+      // The explicit is necessary here as the circuit is not passed to the generate
+      // proof function
+      setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
