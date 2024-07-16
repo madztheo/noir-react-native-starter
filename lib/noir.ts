@@ -1,6 +1,21 @@
-import {NativeModules} from 'react-native';
+import {NativeModules, Platform} from 'react-native';
 import {Circuit} from '../types';
 const {NoirModule} = NativeModules;
+
+/**
+ * Load the SRS from the resources into the internal storage
+ * so it can be used for proof generation and verification
+ * Only needed for Android.
+ * This assumes the SRS is in the /android/app/src/main/res/raw folder
+ * otherwise it does nothing and the SRS will be download on the fly
+ * from Aztec server's
+ */
+export async function prepareSrs() {
+  // Only needed for Android
+  if (Platform.OS === 'android') {
+    await NoirModule.prepareSrs();
+  }
+}
 
 /**
  * Preload the circuit to be used in the proof generation and verification

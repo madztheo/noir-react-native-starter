@@ -70,3 +70,5 @@ yarn-error.log
 /circuits/**/target/vk**
 /circuits/**/proofs
 /android/app/src/main/jniLibs
+
+**/*srs.dat

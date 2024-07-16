@@ -71,6 +71,13 @@ class NoirModule: NSObject {
       throw CircuitError.unableToInitiateCircuit
     }
   }
+
+  func getLocalSrsPath() -> String? {
+    // The srs file is assumed to be named "srs.dat" and located in the ios folder
+    // and added to the app bundle (c.f. readme for more info)
+    let path = Bundle.main.path(forResource: "srs.dat", ofType: nil)
+    return path
+  }
   
   @objc(preloadCircuit:runInBackground:resolve:reject:)
   func preloadCircuit(_ circuitData: String, runInBackground: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
@@ -103,7 +110,12 @@ class NoirModule: NSObject {
         throw CircuitError.undefinedCircuit
       }
       
-      let proof = try circuit!.prove(inputs, proof_type: proofType ?? "plonk")
+      // Try to get the local srs if any
+      // If no local srs file is found, it will be fetched directly
+      // online from Aztec servers
+      let localSrs = getLocalSrsPath()
+      
+      let proof = try circuit!.prove(inputs, proof_type: proofType ?? "plonk", srs_path: localSrs)
       let hexProof = proof.proof.hexEncodedString()
       let hexVkey = proof.vkey.hexEncodedString()
       
@@ -123,9 +135,14 @@ class NoirModule: NSObject {
       if circuit == nil {
         throw CircuitError.undefinedCircuit
       }
+
+      // Try to get the local srs if any
+      // If no local srs file is found, it will be fetched directly
+      // online from Aztec servers
+      let localSrs = getLocalSrsPath()
       
       let wholeProof = Proof(proof: proof.hexadecimal!, vkey: vkey.hexadecimal!)
-      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk")
+      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk", srs_path: localSrs)
       
       resolve(["verified": verified])
     } catch {

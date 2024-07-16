@@ -22,6 +22,7 @@ For the rest follow the steps below:
 
 1. Clone the repository
 2. Run `npm install` to install the dependencies
+3. [Optional] Download the SRS by running `./scripts/download-srs.sh`. It will download it and place a copy in the iOS project and the Android project. Don't forget to make sure the srs.dat file appears on XCode.
 
 ## Setup on iOS
 
@@ -41,10 +42,20 @@ export NDK_VERSION=26.3.11579264
 export HOST_TAG=darwin-x86_64
 ```
 
-2. Connect your Android device and check it is connected by running `npm run android-devices`. It should displayed the connected device as `device` in the list of devices attached.
+2. Connect your Android device and check it is connected by running `npm run android-devices`. It should display the connected device as `device` in the list of devices attached.
 3. Run `npm run android` to build and run the app on your device
 
 **Note**: If you want to do a clean build, you can run `./scripts/clean-android.sh` before running `npm run android`
+
+## SRS download strategies
+
+The Structured Reference String (or SRS) contains the necessary data from the Universal Trusted Setup of Aztec to generate proofs with Noir (or more precisely the Barretenberg backend). So you will need it in the app.
+
+There are two strategies to include the SRS in the app:
+
+1. **Pre-download the SRS and store it locally**: You can download the SRS into the app binary by running the `./scripts/download-srs.sh` script. It will download the SRS and place it in the iOS and Android projects. If you have many proofs to generate and/or complex circuits with a large number of constraints, this is the recommended approach. It will substantially increase the size of the binary, but the proofs will be generated faster.
+
+2. **Use the SRS from the server**: If you don't download the SRS beforehand when building the app, the app will revert to simply fetching the necessary chunks of the SRS it needs to generate proofs according to the size of the circuit to be executed. This has the advantage of reducing the size of the binary and only downloading the strict minimum of the SRS. However, it will slow down the proof generation process as the app will need to fetch the SRS from the server every time it needs to generate a proof. This is the default strategy used in the app as you have to actively download the SRS if you want to use the first strategy. Also make sure to consider users' data plan and network speed if you use this strategy.
 
 ## How to replace the circuit
 
@@ -63,6 +74,12 @@ This app comes with a basic Noir circuit checking that the prover knows two priv
 ## Note on performance
 
 Bear in mind that mobile phones have a limited amount of available RAM. The circuit used in this app is really simple so the memory usage is not a problem. However, if you plan to use more complex circuits, you should be aware that the memory usage will increase and may go above the available memory on the device causing the proof generation to fail.
+
+## A note on Honk
+
+While still a work of progress, Honk APIs are already exposed in Barretenberg and this app gives the ability to tap into it. You can switch between Honk and UltraPlonk (current proofs used by Noir) by specifying the `proofType` of the prove and verify functions. Specify `honk` to use Honk and `plonk` to use UltraPlonk. If not specified, the default is UltraPlonk.
+
+You will notice Honk is substantially faster than UltraPlonk, and uses less memory than UltraPlonk. However, it is still in development and there is no fully working on-chain verifier for it at the moment.
 
 ## Noir version currently supported
 
