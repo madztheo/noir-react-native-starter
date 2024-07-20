@@ -58,14 +58,14 @@ enum CircuitError: Error {
 @objc(NoirModule)
 class NoirModule: NSObject {
   var swoir = Swoir(backend: Swoirenberg.self)
-  var circuit: Circuit? = nil
+  var circuits: [String: Circuit] = [:]
   
-  func loadCircuit(circuitData: Data) throws {
+  func loadCircuit(circuitData: Data) throws -> String {
     do {
-      circuit = try swoir.createCircuit(manifest: circuitData)
-      if circuit == nil {
-        throw CircuitError.unableToInitiateCircuit
-      }
+      let circuit = try swoir.createCircuit(manifest: circuitData)
+      let id = circuit.manifest.hash.description
+      circuits[id] = circuit
+      return id
     } catch {
       print("Error", error)
       throw CircuitError.unableToInitiateCircuit
@@ -78,46 +78,45 @@ class NoirModule: NSObject {
     let path = Bundle.main.path(forResource: "srs.dat", ofType: nil)
     return path
   }
-  
-  @objc(preloadCircuit:runInBackground:resolve:reject:)
-  func preloadCircuit(_ circuitData: String, runInBackground: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    if runInBackground {
-      DispatchQueue.global(qos: .background).async {
-        do {
-          try self.loadCircuit(circuitData: circuitData.data(using: .utf8)!)
-          resolve(["success": true])
-        } catch {
-          reject("CIRCUIT_LOADING_ERROR", "An error occurred while loading the circuit", error)
-        }
-      }
-    } else {
-      do {
-        try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
-        resolve(["success": true])
-      } catch {
-        reject("CIRCUIT_LOADING_ERROR", "An error occurred while loading the circuit", error)
-      }
-    }
-  }
- 
-  @objc(prove:circuitData:proofType:resolve:reject:)
-  func prove(_ inputs: [String: Any], circuitData: String?, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+
+  @objc(setupCircuit:resolve:reject:)
+  func setupCircuit(_ circuitData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
-      if circuitData != nil {
-        try loadCircuit(circuitData: circuitData!.data(using: .utf8)!)
-      }
-      if circuit == nil {
-        throw CircuitError.undefinedCircuit
-      }
+      let circuitId = try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
+
+      let circuit = circuits[circuitId]
       
       // Try to get the local srs if any
       // If no local srs file is found, it will be fetched directly
       // online from Aztec servers
       let localSrs = getLocalSrsPath()
       
-      let proof = try circuit!.prove(inputs, proof_type: proofType ?? "plonk", srs_path: localSrs)
-      let hexProof = proof.proof.hexEncodedString()
-      let hexVkey = proof.vkey.hexEncodedString()
+      try circuit?.setupSrs(srs_path: localSrs)
+      
+      resolve(["circuitId": circuitId])
+    } catch {
+      print("Error", error)
+      reject("CIRCUIT_SETUP_ERROR", "Error setting up the circuit", error)
+    }
+  }
+ 
+  @objc(prove:circuitId:proofType:resolve:reject:)
+  func prove(_ inputs: [String: Any], circuitId: String, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      let circuit = circuits[circuitId]
+      if circuit == nil {
+        throw CircuitError.undefinedCircuit
+      }
+
+      let start = DispatchTime.now()
+      let proof = try circuit?.prove(inputs, proof_type: proofType ?? "plonk")
+      let end = DispatchTime.now()
+      let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+      let timeInterval = Double(nanoTime) / 1_000_000
+      print("Proof generation time: \(timeInterval) ms")
+
+      let hexProof = proof?.proof.hexEncodedString()
+      let hexVkey = proof?.vkey.hexEncodedString()
       
       resolve(["proof": hexProof, "vkey": hexVkey])
     } catch {
@@ -126,28 +125,33 @@ class NoirModule: NSObject {
     }
   }
   
-  @objc(verify:vkey:circuitData:proofType:resolve:reject:)
-  func verify(_ proof: String, vkey: String, circuitData: String?, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(verify:vkey:circuitId:proofType:resolve:reject:)
+  func verify(_ proof: String, vkey: String, circuitId: String, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
-      if circuitData != nil {
-        try loadCircuit(circuitData: circuitData!.data(using: .utf8)!)
-      }
+      let circuit = circuits[circuitId]
       if circuit == nil {
         throw CircuitError.undefinedCircuit
       }
-
-      // Try to get the local srs if any
-      // If no local srs file is found, it will be fetched directly
-      // online from Aztec servers
-      let localSrs = getLocalSrsPath()
       
       let wholeProof = Proof(proof: proof.hexadecimal!, vkey: vkey.hexadecimal!)
-      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk", srs_path: localSrs)
+      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk")
       
       resolve(["verified": verified])
     } catch {
       print("Error", error)
       reject("PROOF_VERIFICATION_ERROR", "Error verifying the proof", error)
     }
+  }
+
+  @objc(clearCircuit:resolve:reject:)
+  func clearCircuit(_ circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    circuits.removeValue(forKey: circuitId)
+    resolve(["success": true])
+  }
+
+  @objc(clearAllCircuits:reject:)
+  func clearAllCircuits(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    circuits.removeAll()
+    resolve(["success": true])
   }
 }

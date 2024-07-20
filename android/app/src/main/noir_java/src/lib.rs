@@ -1,5 +1,5 @@
 use jni::objects::{JClass, JObject, JString};
-use jni::sys::{jboolean, jobject};
+use jni::sys::{jboolean, jobject, jint};
 use jni::JNIEnv;
 use noir_rs::{
     native_types::{Witness, WitnessMap},
@@ -7,11 +7,43 @@ use noir_rs::{
     prove::prove_honk,
     verify::verify,
     verify::verify_honk,
+    srs::setup_srs,
     FieldElement
 };
 
 //#[macro_use] extern crate log;
 //use android_log;
+
+#[no_mangle]
+pub extern "system" fn Java_noir_Noir_setup_1srs<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    circuit_bytecode_jstr: JString<'local>,
+    srs_path_jstr: JString<'local>,
+) -> jint {
+    let circuit_bytecode = env
+        .get_string(&circuit_bytecode_jstr)
+        .expect("Failed to get string from JString")
+        .to_str()
+        .expect("Failed to convert Java string to Rust string")
+        .to_owned();
+
+    let srs_path = match srs_path_jstr.is_null() {
+        true => None,
+        false => Some(
+            env.get_string(&srs_path_jstr)
+                .expect("Failed to get srs path string")
+                .to_str()
+                .expect("Failed to convert srs path to Rust string")
+                .to_owned(),
+        ),
+    };
+
+    let num_points = setup_srs(circuit_bytecode, srs_path.as_deref()).expect("Failed to setup srs");
+
+    jint::try_from(num_points).unwrap()
+}
+
 
 #[no_mangle]
 pub extern "system" fn Java_noir_Noir_prove<'local>(
@@ -20,7 +52,7 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
     circuit_bytecode_jstr: JString<'local>,
     witness_jobject: JObject<'local>,
     proof_type_jstr: JString<'local>,
-    srs_path_jstr: JString<'local>,
+    num_points_jstr: JString<'local>,
 ) -> jobject {
     //android_log::init("NoirJava").unwrap();
     // Use more descriptive variable names and handle errors gracefully
@@ -46,16 +78,13 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
         .expect("Failed to convert proof type to Rust string")
         .to_owned();
 
-    let srs_path = match srs_path_jstr.is_null() {
-        true => None,
-        false => Some(
-            env.get_string(&srs_path_jstr)
-                .expect("Failed to get srs path string")
-                .to_str()
-                .expect("Failed to convert srs path to Rust string")
-                .to_owned(),
-        ),
-    };
+    let num_points = env
+        .get_string(&num_points_jstr)
+        .expect("Failed to get num_points string")
+        .to_str()
+        .expect("Failed to convert num_points to Rust string")
+        .parse()
+        .expect("Failed to parse num_points");
 
     let mut witness_map = WitnessMap::new();
 
@@ -83,9 +112,9 @@ pub extern "system" fn Java_noir_Noir_prove<'local>(
 
     //debug!("Witness map: {:?}", witness_map);
     let (proof, vk) = if proof_type == "honk" { 
-        prove_honk(circuit_bytecode, witness_map, srs_path.as_deref()).expect("Proof generation failed") 
+        prove_honk(circuit_bytecode, witness_map).expect("Proof generation failed") 
     } else { 
-        prove(circuit_bytecode, witness_map, srs_path.as_deref()).expect("Proof generation failed") 
+        prove(circuit_bytecode, witness_map, num_points).expect("Proof generation failed") 
     };
 
     let proof_str = hex::encode(proof);
@@ -119,7 +148,7 @@ pub extern "system" fn Java_noir_Noir_verify<'local>(
     circuit_bytecode_jstr: JString<'local>,
     mut proof_jobject: JObject<'local>,
     proof_type_jstr: JString<'local>,
-    srs_path_jstr: JString<'local>,
+    num_points_jstr: JString<'local>,
 ) -> jboolean {
     let circuit_bytecode = env
         .get_string(&circuit_bytecode_jstr)
@@ -155,17 +184,6 @@ pub extern "system" fn Java_noir_Noir_verify<'local>(
         .to_str()
         .expect("Failed to convert Java string to Rust string");
 
-    let srs_path = match srs_path_jstr.is_null() {
-        true => None,
-        false => Some(
-            env.get_string(&srs_path_jstr)
-                .expect("Failed to get srs path string")
-                .to_str()
-                .expect("Failed to convert srs path to Rust string")
-                .to_owned(),
-        ),
-    };
-
     let proof = hex::decode(proof_str).expect("Failed to decode proof");
     let verification_key = hex::decode(vk_str).expect("Failed to decode verification key");
 
@@ -176,10 +194,18 @@ pub extern "system" fn Java_noir_Noir_verify<'local>(
         .expect("Failed to convert proof type to Rust string")
         .to_owned();
 
+    let num_points = env
+        .get_string(&num_points_jstr)
+        .expect("Failed to get num_points string")
+        .to_str()
+        .expect("Failed to convert num_points to Rust string")
+        .parse()
+        .expect("Failed to parse num_points");
+
     let verdict = if proof_type == "honk" {
-        verify_honk(circuit_bytecode, proof, verification_key, srs_path.as_deref()).expect("Verification failed")
+        verify_honk(circuit_bytecode, proof, verification_key).expect("Verification failed")
     } else {
-        verify(circuit_bytecode, proof, verification_key, srs_path.as_deref()).expect("Verification failed")
+        verify(circuit_bytecode, proof, verification_key, num_points).expect("Verification failed")
     };
 
     jboolean::from(verdict)

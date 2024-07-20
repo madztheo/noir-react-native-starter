@@ -27,21 +27,23 @@ import noir.Noir
 
 class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     override fun getName() = "NoirModule"
-    var circuit: Circuit? = null
+    var circuits: HashMap<String, Circuit> = HashMap()
 
     init {
       System.loadLibrary("noir_java")
     }
 
-    fun loadCircuit(circuitData: String, promise: Promise): Boolean {
+    fun loadCircuit(circuitData: String, promise: Promise): String? {
         try {
-            circuit = Circuit.fromJsonManifest(circuitData)
-            return true
+            val circuit = Circuit.fromJsonManifest(circuitData)
+            val id = circuit.manifest.hash.toLong().toString()
+            circuits.put(id, circuit)
+            return id
         } catch (e: Exception){
             Log.d("CIRCUIT_LOAD_FAIL", e.toString());
             promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
-            return false
         }
+        return null
     }
 
 
@@ -111,44 +113,36 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun preloadCircuit(circuitData: String, runInBackground: Boolean?, promise: Promise) {
-        if (runInBackground == true) {
-            Thread {
-                var succeeded = loadCircuit(circuitData, promise)
-                if (succeeded) {
-                    var result: WritableMap = Arguments.createMap()
-                    result.putBoolean("success", succeeded)
-                    promise.resolve(result)
-                }
-            }.start()
-        } else {
-            var succeeded = loadCircuit(circuitData, promise)
-            if (succeeded) {
-                var result: WritableMap = Arguments.createMap()
-                result.putBoolean("success", succeeded)
-                promise.resolve(result)
+    @ReactMethod fun setupCircuit(circuitData: String, promise: Promise) {
+        Thread {
+            val circuitId = loadCircuit(circuitData, promise)
+            if (circuitId == null) {
+                promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
+                return@Thread
             }
-        }
+
+            val circuit = circuits.get(circuitId)
+
+            val localSrs = getLocalSrsPath()
+
+            circuit?.setupSrs(localSrs)
+
+            var result: WritableMap = Arguments.createMap()
+            result.putString("circuitId", circuitId)
+            promise.resolve(result)
+        }.start()
      }
 
-    @ReactMethod fun prove(inputs: ReadableMap, circuitData: String?, proofType: String?, promise: Promise) {
+    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, proofType: String?, promise: Promise) {
         Thread {
-            if (circuitData != null) {
-                var succeeded = loadCircuit(circuitData!!, promise)
-                if (succeeded != true) {
-                    promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
-                    return@Thread
-                }
-            }
+            val circuit = circuits.get(circuitId)
             if (circuit == null) {
-                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before verifying the proof")
+                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before generating a proof")
                 return@Thread
             }
 
             try {
-                val localSrs = getLocalSrsPath()
-
-                var proof: Proof? = circuit?.prove(inputs.toHashMap(), proofType ?: "plonk", localSrs)
+                var proof: Proof? = circuit?.prove(inputs.toHashMap(), proofType ?: "plonk")
 
                 var result: WritableMap = Arguments.createMap()
                 result.putString("proof", proof!!.proof)
@@ -161,28 +155,17 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun verify(proof: String, vkey: String, circuitData: String?, proofType: String?, promise: Promise) {
+    @ReactMethod fun verify(proof: String, vkey: String, circuitId: String, proofType: String?, promise: Promise) {
         Thread {
-            if (circuitData != null) {
-                var succeeded = loadCircuit(circuitData!!, promise)
-                if (succeeded != true) {
-                    if (succeeded != true) {
-                        promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
-                        return@Thread
-                    }
-                    return@Thread
-                }
-            }
+            val circuit = circuits.get(circuitId)
             if (circuit == null) {
-                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before verifying the proof")
+                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before verifying a proof")
                 return@Thread
             }
 
             try {
-                val localSrs = getLocalSrsPath()
-
                 var proof: Proof = Proof(proof, vkey)
-                var verified: Boolean? = circuit?.verify(proof, proofType ?: "plonk", localSrs)
+                var verified: Boolean? = circuit?.verify(proof, proofType ?: "plonk")
 
                 var result: WritableMap = Arguments.createMap()
                 result.putBoolean("verified", verified!!)
@@ -192,5 +175,19 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
                 promise.reject("PROOF_VERIFICATION_ERROR", "Unable to verify the proof. Check the proof and verification key is formatted correctly")
             }
         }.start()
+    }
+
+    @ReactMethod fun clearCircuit(circuitId: String, promise: Promise) {
+        circuits.remove(circuitId)
+        var result: WritableMap = Arguments.createMap()
+        result.putBoolean("success", true)
+        promise.resolve(result)
+    }
+
+    @ReactMethod fun clearAllCircuits(promise: Promise) {
+        circuits.clear()
+        var result: WritableMap = Arguments.createMap()
+        result.putBoolean("success", true)
+        promise.resolve(result)
     }
 }

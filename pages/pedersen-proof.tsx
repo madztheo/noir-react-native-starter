@@ -5,9 +5,10 @@ import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import {
+  clearCircuit,
   extractProof,
   generateProof,
-  preloadCircuit,
+  setupCircuit,
   verifyProof,
 } from '../lib/noir';
 // Get the circuit to load for the proof generation
@@ -27,19 +28,21 @@ export default function PedersenProof() {
     b: '',
   });
   const [provingTime, setProvingTime] = useState(0);
-  const [circuitLoaded, setCircuitLoaded] = useState(false);
+  const [circuitId, setCircuitId] = useState<string>();
 
   useEffect(() => {
-    preloadCircuit(circuit as Circuit, true).then(() => {
-      setCircuitLoaded(true);
-    });
+    // First call this function to load the circuit and setup the SRS for it
+    // Keep the id returned by this function as it is used to identify the circuit
+    setupCircuit(circuit as Circuit).then(id => setCircuitId(id));
+    return () => {
+      if (circuitId) {
+        // Clean up the circuit after the component is unmounted
+        clearCircuit(circuitId!);
+      }
+    };
   }, []);
 
   const onGenerateProof = async () => {
-    if (!circuitLoaded) {
-      Alert.alert('Circuit not loaded', 'Please wait for the circuit to load');
-      return;
-    }
     if (!inputs.a || !inputs.b) {
       Alert.alert('Invalid input', 'Please enter the inputs first');
       return;
@@ -54,15 +57,12 @@ export default function PedersenProof() {
           a: Number(inputs.a),
           b: Number(inputs.b),
         },
-        undefined,
+        circuitId!,
         'honk',
       );
       const end = Date.now();
       setProvingTime(end - start);
       setProofAndInputs(proofWithPublicInputs);
-      // Use the extractProof function to separate the proof from the public inputs
-      // The explicit is necessary here as the circuit is not passed to the generate
-      // proof function
       setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
       setVkey(_vkey);
     } catch (err: any) {
@@ -80,7 +80,7 @@ export default function PedersenProof() {
       const verified = await verifyProof(
         proofAndInputs,
         vkey,
-        undefined,
+        circuitId!,
         'honk',
       );
       if (verified) {
@@ -169,8 +169,10 @@ export default function PedersenProof() {
         </>
       )}
       {!proof && (
+        // The button is disabled as long as the circuit has not been setup
+        // i.e. the circuitId is not defined
         <Button
-          disabled={generatingProof || !circuitLoaded}
+          disabled={generatingProof || !circuitId}
           onPress={() => {
             onGenerateProof();
           }}>

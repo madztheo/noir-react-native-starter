@@ -1,9 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
-import {generateProof, verifyProof} from '../lib/noir';
+import {
+  clearCircuit,
+  extractProof,
+  generateProof,
+  setupCircuit,
+  verifyProof,
+} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/secp256r1/target/secp256r1.json';
@@ -17,6 +23,19 @@ export default function Secp256r1Proof() {
   const [generatingProof, setGeneratingProof] = useState(false);
   const [verifyingProof, setVerifyingProof] = useState(false);
   const [provingTime, setProvingTime] = useState(0);
+  const [circuitId, setCircuitId] = useState<string>();
+
+  useEffect(() => {
+    // First call this function to load the circuit and setup the SRS for it
+    // Keep the id returned by this function as it is used to identify the circuit
+    setupCircuit(circuit as Circuit).then(id => setCircuitId(id));
+    return () => {
+      if (circuitId) {
+        // Clean up the circuit after the component is unmounted
+        clearCircuit(circuitId);
+      }
+    };
+  }, []);
 
   const onGenerateProof = async () => {
     setGeneratingProof(true);
@@ -24,11 +43,7 @@ export default function Secp256r1Proof() {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
       const start = Date.now();
-      const {
-        proofWithPublicInputs,
-        proof: _proof,
-        vkey: _vkey,
-      } = await generateProof(
+      const {proofWithPublicInputs, vkey: _vkey} = await generateProof(
         {
           public_key_x: [
             8, 115, 220, 188, 4, 148, 236, 206, 160, 168, 66, 167, 49, 172, 127,
@@ -53,15 +68,13 @@ export default function Secp256r1Proof() {
             62, 147,
           ],
         },
-        // We load the circuit at the same time as the proof generation
-        // but you can use the preloadCircuit function to load it beforehand
-        circuit as Circuit,
+        circuitId!,
         'honk',
       );
       const end = Date.now();
       setProvingTime(end - start);
       setProofAndInputs(proofWithPublicInputs);
-      setProof(_proof!);
+      setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -78,7 +91,7 @@ export default function Secp256r1Proof() {
       const verified = await verifyProof(
         proofAndInputs,
         vkey,
-        undefined,
+        circuitId!,
         'honk',
       );
       if (verified) {
@@ -137,8 +150,10 @@ export default function Secp256r1Proof() {
         </>
       )}
       {!proof && (
+        // The button is disabled as long as the circuit has not been setup
+        // i.e. the circuitId is not defined
         <Button
-          disabled={generatingProof}
+          disabled={generatingProof || !circuitId}
           onPress={() => {
             onGenerateProof();
           }}>

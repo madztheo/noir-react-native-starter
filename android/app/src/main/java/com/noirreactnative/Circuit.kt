@@ -56,7 +56,7 @@ data class FileMap(
     val path: String
 )
 
-class Circuit(public val bytecode: String, public val manifest: CircuitManifest) {
+class Circuit(public val bytecode: String, public val manifest: CircuitManifest, public var num_points: Int = 0) {
 
     companion object {
         fun fromJsonManifest(jsonManifest: String): Circuit {
@@ -65,13 +65,23 @@ class Circuit(public val bytecode: String, public val manifest: CircuitManifest)
         }
     }
 
-    fun prove(initialWitness: Map<String, Any>, proofType: String, srs_path: String?): Proof {
-        val witness = generateWitnessMap(initialWitness, manifest.abi.parameters, 0)
-        return Noir.prove(bytecode, witness, proofType, srs_path)
+    fun setupSrs(srs_path: String?) {
+        num_points = Noir.setup_srs(bytecode, srs_path)
     }
 
-    fun verify(proof: Proof, proofType: String, srs_path: String?): Boolean {
-        return Noir.verify(bytecode, proof, proofType, srs_path)
+    fun prove(initialWitness: Map<String, Any>, proofType: String): Proof {
+        if (num_points == 0) {
+            throw IllegalArgumentException("SRS not set up")
+        }
+        val witness = generateWitnessMap(initialWitness, manifest.abi.parameters, 0)
+        return Noir.prove(bytecode, witness, proofType, num_points.toString())
+    }
+
+    fun verify(proof: Proof, proofType: String): Boolean {
+        if (num_points == 0) {
+            throw IllegalArgumentException("SRS not set up")
+        }
+        return Noir.verify(bytecode, proof, proofType, num_points.toString())
     }
 
     private fun flattenMultiDimensionalArray(array: List<Any>): List<Any> {

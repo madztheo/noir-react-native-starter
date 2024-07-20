@@ -10,22 +10,28 @@
 
 @interface RCT_EXTERN_MODULE(NoirModule, NSObject)
 
-RCT_EXTERN_METHOD(preloadCircuit:(NSString)circuitData
-                  runInBackground:(BOOL)runInBackground  
+RCT_EXTERN_METHOD(setupCircuit:(NSString)circuitData
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(prove:(NSDictionary)inputs
-                  circuitData:(NSString)circuitData
+                  circuitId:(NSString)circuitId
                   proofType:(NSString)proofType
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(verify:(NSString)proof
                   vkey:(NSString)vkey
-                  circuitData:(NSString)circuitData
+                  circuitId:(NSString)circuitData
                   proofType:(NSString)proofType
                   resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(clearCircuit:(NSString)circuitId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(clearAllCircuits:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 + (BOOL)requiresMainQueueSetup

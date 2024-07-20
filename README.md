@@ -34,7 +34,7 @@ For the rest follow the steps below:
 
 ## Setup on Android
 
-1. Make sure to define the environment varialbes `ANDROID_HOME`, `NDK_VERSION` and `HOST_TAG`, they will help the build process to find Android NDK necessary to compile the native code. Example on MacOS:
+1. Make sure to define the environment variables `ANDROID_HOME`, `NDK_VERSION` and `HOST_TAG`, they will help the build process to find Android NDK necessary to compile the native code. Example on MacOS:
 
 ```bash
 export ANDROID_HOME=$HOME/Library/Android/sdk

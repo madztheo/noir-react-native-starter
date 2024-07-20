@@ -1,10 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Share, Alert, StyleSheet} from 'react-native';
 import MainLayout from '../layouts/MainLayout';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import {generateProof, verifyProof} from '../lib/noir';
+import {
+  clearCircuit,
+  extractProof,
+  generateProof,
+  setupCircuit,
+  verifyProof,
+} from '../lib/noir';
 // Get the circuit to load for the proof generation
 // Feel free to replace this with your own circuit
 import circuit from '../circuits/product/target/product.json';
@@ -22,6 +28,19 @@ export default function ProductProof() {
     b: '',
   });
   const [provingTime, setProvingTime] = useState(0);
+  const [circuitId, setCircuitId] = useState<string>();
+
+  useEffect(() => {
+    // First call this function to load the circuit and setup the SRS for it
+    // Keep the id returned by this function as it is used to identify the circuit
+    setupCircuit(circuit as Circuit).then(id => setCircuitId(id));
+    return () => {
+      if (circuitId) {
+        // Clean up the circuit after the component is unmounted
+        clearCircuit(circuitId!);
+      }
+    };
+  }, []);
 
   const onGenerateProof = async () => {
     const result = getResult();
@@ -38,25 +57,20 @@ export default function ProductProof() {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
       const start = Date.now();
-      const {
-        proofWithPublicInputs,
-        proof: _proof,
-        vkey: _vkey,
-      } = await generateProof(
+      const {proofWithPublicInputs, vkey: _vkey} = await generateProof(
         {
           a: Number(factors.a),
           b: Number(factors.b),
           result,
         },
-        // We load the circuit at the same time as the proof generation
-        // but you can use the preloadCircuit function to load it beforehand
-        circuit as Circuit,
+        // The id returned by the setupCircuit function
+        circuitId!,
         'plonk',
       );
       const end = Date.now();
       setProvingTime(end - start);
       setProofAndInputs(proofWithPublicInputs);
-      setProof(_proof!);
+      setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -73,7 +87,8 @@ export default function ProductProof() {
       const verified = await verifyProof(
         proofAndInputs,
         vkey,
-        undefined,
+        // The id returned by the setupCircuit function
+        circuitId!,
         'plonk',
       );
       if (verified) {
@@ -180,8 +195,10 @@ export default function ProductProof() {
         </>
       )}
       {!proof && (
+        // The button is disabled as long as the circuit has not been setup
+        // i.e. the circuitId is not defined
         <Button
-          disabled={generatingProof}
+          disabled={generatingProof || !circuitId}
           onPress={() => {
             onGenerateProof();
           }}>
