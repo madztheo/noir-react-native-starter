@@ -78,28 +78,20 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         val resId = reactApplicationContext.resources.getIdentifier("srs", "raw", reactApplicationContext.packageName)
         // Check the resource file exists
         if (resId == 0) {
-            Log.d("SRS_FILE_NOT_FOUND", "srs.dat file not found in /app/src/main/res/raw, reverting to online SRS")
+            Log.d("SRS_FILE_NOT_FOUND", "srs.local file not found in /app/src/main/res/raw, reverting to online SRS")
             return null
         }
         // We assume the file is located in /app/src/main/res/raw and is
-        // named srs.dat
+        // named srs.local
         val srsFile = File(reactApplicationContext.filesDir, "srs")
         // Check if the srs file is already in the app's internal storage
         if (srsFile.exists()) {
             val srsSize = srsFile.length()
-            Log.d("SRS_FILE_SIZE", "srs.dat found in internal storage is " + srsSize.toString() + " bytes")
-            // If the file is the right size then we can use it
-            if (srsSize == 322560412.toLong()) {
-                Log.d("SRS_FILE_VALID", "Valid srs.dat file found in internal storage")
-                return srsFile.absolutePath
-            }
-            Log.d("SRS_FILE_CORRUPTED", "srs.dat file found in internal storage but is corrupted")
-            // If not the right size then it's probably corrupted
-            // so delete it and write it on internal storage again
-            srsFile.delete()
+            Log.d("SRS_FILE_SIZE", "srs.local found in internal storage is " + srsSize.toString() + " bytes")
+            return srsFile.absolutePath
         }
         val srsPath = writeRawResourceToFile(resId, "srs")
-        Log.d("SRS_FILE_WRITTEN", "srs.dat file written to internal storage")
+        Log.d("SRS_FILE_WRITTEN", "srs.local file written to internal storage")
         return srsPath
     }
 

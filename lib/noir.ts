@@ -7,8 +7,8 @@ const {NoirModule} = NativeModules;
  * so it can be used for proof generation and verification
  * Only needed for Android.
  * This assumes the SRS is in the /android/app/src/main/res/raw folder
- * otherwise it does nothing and the SRS will be download on the fly
- * from Aztec server's
+ * otherwise it does nothing and the SRS will be downloaded on the fly
+ * from Aztec's server
  */
 export async function prepareSrs() {
   // Only needed for Android

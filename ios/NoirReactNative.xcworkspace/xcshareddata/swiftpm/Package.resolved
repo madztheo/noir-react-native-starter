@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/madztheo/Swoir",
       "state" : {
-        "revision" : "9abffc4e00f3a255e18663567eff76bb16fe1927",
-        "version" : "0.30.0-8"
+        "revision" : "caedaf4bda366e11f4d92cd5e0dc816be841f5b6",
+        "version" : "0.30.0-9"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/madztheo/Swoirenberg.git",
       "state" : {
-        "revision" : "49e86f7c04605335e72a5b717fd5bc04e5265928",
-        "version" : "0.30.0-8"
+        "revision" : "2a232fbc46cc88bf9fd36c42c9dcb7857509f5da",
+        "version" : "0.30.0-9"
       }
     }
   ],

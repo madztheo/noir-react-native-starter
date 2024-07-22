@@ -22,7 +22,7 @@ For the rest follow the steps below:
 
 1. Clone the repository
 2. Run `npm install` to install the dependencies
-3. [Optional] Download the SRS by running `./scripts/download-srs.sh`. It will download it and place a copy in the iOS project and the Android project. Don't forget to make sure the srs.dat file appears on XCode.
+3. [Optional] You can download the SRS to package it with the app binary and avoid fetching it from the server every time you generate a proof. Please refer to the section below on SRS download strategies.
 
 ## Setup on iOS
 
@@ -49,13 +49,24 @@ export HOST_TAG=darwin-x86_64
 
 ## SRS download strategies
 
-The Structured Reference String (or SRS) contains the necessary data from the Universal Trusted Setup of Aztec to generate proofs with Noir (or more precisely the Barretenberg backend). So you will need it in the app.
+The Structured Reference String (or SRS) contains the necessary data from the Universal Trusted Setup of Aztec to generate proofs with Noir (or more precisely the Barretenberg backend). So you will need it in the app. Here's how to go about it:
 
-There are two strategies to include the SRS in the app:
+### You have 5 minutes and already know the circuits you want to use
 
-1. **Pre-download the SRS and store it locally**: You can download the SRS into the app binary by running the `./scripts/download-srs.sh` script. It will download the SRS and place it in the iOS and Android projects. If you have many proofs to generate and/or complex circuits with a large number of constraints, this is the recommended approach. It will substantially increase the size of the binary, but the proofs will be generated faster.
+Then you should pre-download the SRS and package it with the app binary. You can do so by running the script `./scripts/download-srs.sh` that will help you do that in a single command. First, you will need to identify which of your circuits has the highest gate count, that is which one of them returns the biggest `Backend Circuit Size` when running `nargo info`. Once you have identified that said circuit, run the following command:
 
-2. **Use the SRS from the server**: If you don't download the SRS beforehand when building the app, the app will revert to simply fetching the necessary chunks of the SRS it needs to generate proofs according to the size of the circuit to be executed. This has the advantage of reducing the size of the binary and only downloading the strict minimum of the SRS. However, it will slow down the proof generation process as the app will need to fetch the SRS from the server every time it needs to generate a proof. This is the default strategy used in the app as you have to actively download the SRS if you want to use the first strategy. Also make sure to consider users' data plan and network speed if you use this strategy.
+```bash
+./scripts/download-srs.sh path/to/your/circuit/target/<your_circuit_name>.json
+```
+
+This will download the SRS and package it into the app binary, and you'll be ready to go!
+
+**Why do I need to know the circuit with the highest gate count?**
+The SRS is the same for all circuits, so you only need to download it once. But you only need a fraction of it according to the size of the circuit you are using. So instead of downloading the whole SRS, which is over 300MB, you can download the chunk of the SRS that is needed to prove the biggest circuit you plan to use. This way you will have a much smaller SRS file to store (likely less than 50MB).
+
+### You don't know which circuits you will use for now and just want to try things out
+
+Then you can skip the process described above and the app will revert to fetching the SRS from Aztec's server. This is the default strategy used in the app. This approach will slow down the proof generation process, especially if you have a slow network connection. Also it is not recommended for production as you should not expect users to have a fast connection at all times and this may severely impact their data plan without them realizing it.
 
 ## How to replace the circuit
 

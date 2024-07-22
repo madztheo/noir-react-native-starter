@@ -17,7 +17,10 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		C22D46782C4ABF340020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D46772C4ABF340020284A /* Swoir */; };
 		C22D467B2C4AC2370020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D467A2C4AC2370020284A /* Swoir */; };
-		C22D467F2C4BBCD00020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D467E2C4BBCD00020284A /* Swoir */; };
+		C22D46842C4EC04A0020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D46832C4EC04A0020284A /* Swoir */; };
+		C22D46862C4EE1DF0020284A /* srs.local in Resources */ = {isa = PBXBuildFile; fileRef = C22D46852C4EE1DF0020284A /* srs.local */; };
+		C22D46892C4EED1B0020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D46882C4EED1B0020284A /* Swoir */; };
+		C22D468C2C4EEF4B0020284A /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C22D468B2C4EEF4B0020284A /* Swoir */; };
 		C2336E5D2C4A9CB800731D87 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2336E5C2C4A9CB800731D87 /* Swoir */; };
 		C273AF452B86523F00991B29 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C273AF442B86523F00991B29 /* Swoir */; };
 		C273AF4F2B86595200991B29 /* NoirModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C273AF4E2B86595200991B29 /* NoirModule.swift */; };
@@ -30,7 +33,6 @@
 		C2E2EA4C2C3C34D400078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA4B2C3C34D400078AAB /* Swoir */; };
 		C2E2EA522C3FAA5E00078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA512C3FAA5E00078AAB /* Swoir */; };
 		C2E2EA6F2C46673800078AAB /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E2EA6E2C46673800078AAB /* Swoir */; };
-		C2E2EA782C46932800078AAB /* srs.dat in Resources */ = {isa = PBXBuildFile; fileRef = C2E2EA772C46932800078AAB /* srs.dat */; };
 		C2E55DB22C49301500FADAF5 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E55DB12C49301500FADAF5 /* Swoir */; };
 		C2E55DB52C49760100FADAF5 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E55DB42C49760100FADAF5 /* Swoir */; };
 		C2E55DB82C49885200FADAF5 /* Swoir in Frameworks */ = {isa = PBXBuildFile; productRef = C2E55DB72C49885200FADAF5 /* Swoir */; };
@@ -64,10 +66,10 @@
 		6EA6CE147429926A9ABA7539 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = NoirReactNative/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = NoirReactNative/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-NoirReactNative-NoirReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoirReactNative-NoirReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-NoirReactNative-NoirReactNativeTests/Pods-NoirReactNative-NoirReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		C22D46852C4EE1DF0020284A /* srs.local */ = {isa = PBXFileReference; lastKnownFileType = file; path = srs.local; sourceTree = "<group>"; };
 		C273AF4E2B86595200991B29 /* NoirModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoirModule.swift; sourceTree = "<group>"; };
 		C273AF512B8659EF00991B29 /* NoirModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoirModule.m; sourceTree = "<group>"; };
 		C273AF572B865E9400991B29 /* NoirReactNative-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NoirReactNative-Bridging-Header.h"; sourceTree = "<group>"; };
-		C2E2EA772C46932800078AAB /* srs.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = srs.dat; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -93,11 +95,13 @@
 				C2E2EA462C3C17AD00078AAB /* Swoir in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-NoirReactNative.a in Frameworks */,
 				C2E2EA6F2C46673800078AAB /* Swoir in Frameworks */,
-				C22D467F2C4BBCD00020284A /* Swoir in Frameworks */,
+				C22D46892C4EED1B0020284A /* Swoir in Frameworks */,
+				C22D46842C4EC04A0020284A /* Swoir in Frameworks */,
 				C2E2EA522C3FAA5E00078AAB /* Swoir in Frameworks */,
 				C273AF452B86523F00991B29 /* Swoir in Frameworks */,
 				C2336E5D2C4A9CB800731D87 /* Swoir in Frameworks */,
 				C2E2EA4C2C3C34D400078AAB /* Swoir in Frameworks */,
+				C22D468C2C4EEF4B0020284A /* Swoir in Frameworks */,
 				C2E55DB82C49885200FADAF5 /* Swoir in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +129,7 @@
 		13B07FAE1A68108700A75B9A /* NoirReactNative */ = {
 			isa = PBXGroup;
 			children = (
-				C2E2EA772C46932800078AAB /* srs.dat */,
+				C22D46852C4EE1DF0020284A /* srs.local */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -247,7 +251,9 @@
 				C2336E5C2C4A9CB800731D87 /* Swoir */,
 				C22D46772C4ABF340020284A /* Swoir */,
 				C22D467A2C4AC2370020284A /* Swoir */,
-				C22D467E2C4BBCD00020284A /* Swoir */,
+				C22D46832C4EC04A0020284A /* Swoir */,
+				C22D46882C4EED1B0020284A /* Swoir */,
+				C22D468B2C4EEF4B0020284A /* Swoir */,
 			);
 			productName = NoirReactNative;
 			productReference = 13B07F961A680F5B00A75B9A /* NoirReactNative.app */;
@@ -281,7 +287,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				C22D467D2C4BBCD00020284A /* XCRemoteSwiftPackageReference "Swoir" */,
+				C22D468A2C4EEF4B0020284A /* XCRemoteSwiftPackageReference "Swoir" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -305,9 +311,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2E2EA782C46932800078AAB /* srs.dat in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				C22D46862C4EE1DF0020284A /* srs.local in Resources */,
 				30824C7FA6D34A227C00226C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -804,12 +810,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C22D467D2C4BBCD00020284A /* XCRemoteSwiftPackageReference "Swoir" */ = {
+		C22D468A2C4EEF4B0020284A /* XCRemoteSwiftPackageReference "Swoir" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/madztheo/Swoir";
 			requirement = {
 				kind = exactVersion;
-				version = "0.30.0-8";
+				version = "0.30.0-9";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -823,9 +829,17 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Swoir;
 		};
-		C22D467E2C4BBCD00020284A /* Swoir */ = {
+		C22D46832C4EC04A0020284A /* Swoir */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C22D467D2C4BBCD00020284A /* XCRemoteSwiftPackageReference "Swoir" */;
+			productName = Swoir;
+		};
+		C22D46882C4EED1B0020284A /* Swoir */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Swoir;
+		};
+		C22D468B2C4EEF4B0020284A /* Swoir */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C22D468A2C4EEF4B0020284A /* XCRemoteSwiftPackageReference "Swoir" */;
 			productName = Swoir;
 		};
 		C2336E5C2C4A9CB800731D87 /* Swoir */ = {

@@ -81,3 +81,6 @@ yarn-error.log
 /android/app/src/main/jniLibs
 
 **/*srs.dat
+**/*srs.local
+**/*Cargo.lock
+/scripts/**/target/**

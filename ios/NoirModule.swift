@@ -73,9 +73,9 @@ class NoirModule: NSObject {
   }
 
   func getLocalSrsPath() -> String? {
-    // The srs file is assumed to be named "srs.dat" and located in the ios folder
+    // The srs file is assumed to be named "srs.local" and located in the ios folder
     // and added to the app bundle (c.f. readme for more info)
-    let path = Bundle.main.path(forResource: "srs.dat", ofType: nil)
+    let path = Bundle.main.path(forResource: "srs.local", ofType: nil)
     return path
   }
 
