@@ -12,7 +12,9 @@ The app integrates with the [Swoir library](https://github.com/Swoir/Swoir) to g
 
 ### Android
 
-The app integrates some Kotlin code following a similar logic to Swoir, by taking the same type of inputs and the circuit manifest to generate proofs with Noir on Android. This part of the code will be exported soon in a separate library to simplify reusability.
+The app integrates with [noir_android](https://github.com/madztheo/noir_android), to generate proofs with Noir on Android. This library is written in Kotlin and Java with the compiled aar available for each release.
+
+**Note**: Currently `noir_android` is loaded directly with the aar file by downloading it from the latest GitHub release. Ideally, in the future it should be available through Maven (e.g. Jitpack).
 
 ## General setup
 
@@ -34,16 +36,8 @@ For the rest follow the steps below:
 
 ## Setup on Android
 
-1. Make sure to define the environment variables `ANDROID_HOME`, `NDK_VERSION` and `HOST_TAG`, they will help the build process to find Android NDK necessary to compile the native code. Example on MacOS:
-
-```bash
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export NDK_VERSION=26.3.11579264
-export HOST_TAG=darwin-x86_64
-```
-
-2. Connect your Android device and check it is connected by running `npm run android-devices`. It should display the connected device as `device` in the list of devices attached.
-3. Run `npm run android` to build and run the app on your device
+1. Connect your Android device and check it is connected by running `npm run android-devices`. It should display the connected device as `device` in the list of devices attached.
+2. Run `npm run android` to build and run the app on your device
 
 **Note**: If you want to do a clean build, you can run `./scripts/clean-android.sh` before running `npm run android`
 
