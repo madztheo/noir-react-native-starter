@@ -1,3 +1,7 @@
+plugins {
+    id "de.undercouch.download" version "5.6.0"
+}
+
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -113,6 +117,10 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("com.google.code.gson:gson:2.8.9")
+    // Ideally we want to use jitpack instead of downloading the aar file
+    // but for now it fails to load noir_java native library if we use jitpack
+    //implementation("com.github.madztheo:noir_android:0.30.0-7")
+    implementation files('libs/noirandroid_lib-release.aar')
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
@@ -122,59 +130,16 @@ dependencies {
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
-def rustLibName = "noir_java" // Adjust based on your library name
-def rustLibPath = "src/main/$rustLibName" // Adjust based on your library name
-
-tasks.register("buildRust", Exec.class) {
-    workingDir(file("$rustLibPath"))
-    // Set the environment variables necessary for OpenSSL
-    def ANDROID_HOME = System.getenv("ANDROID_HOME")
-    def NDK_VERSION = System.getenv("NDK_VERSION")
-    def HOST_TAG = System.getenv("HOST_TAG")
-    def PATH = System.getenv("PATH")
-    def ANDROID_NDK_HOME = "$ANDROID_HOME/ndk/$NDK_VERSION"
-    def TOOLCHAIN = "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG"
-    def TARGET = "aarch64-linux-android"
-    def API = "33"
-    def CC = "$TOOLCHAIN/bin/$TARGET$API-clang"
-
-    environment "ANDROID_NDK_HOME", "$ANDROID_NDK_HOME"
-    environment "TOOLCHAIN", "$TOOLCHAIN"
-    environment "TARGET", "$TARGET"
-    environment "API", "$API"
-    environment "AR", "$TOOLCHAIN/bin/llvm-ar"
-    environment "CC", "$CC"
-    environment "AS", "$CC"
-    environment "CXX", "$TOOLCHAIN/bin/$TARGET$API-clang++"
-    environment "LD", "$TOOLCHAIN/bin/ld"
-    environment "RANLIB", "$TOOLCHAIN/bin/llvm-ranlib"
-    environment "STRIP", "$TOOLCHAIN/bin/llvm-strip"
-    environment "PATH", "$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
-    environment "PATH", "$PATH:$TOOLCHAIN/bin"
-    environment "CMAKE_TOOLCHAIN_FILE_aarch64_linux_android", "$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
-    environment "ANDROID_ABI", "arm64-v8a"
-    // Android arm64
-    commandLine("cargo", "build", "--release", "--target", "aarch64-linux-android", "-vvvv")
-    // Android arm
-    // commandLine("cargo", "build", "--release", "--target", "armv7-linux-androideabi")
-    // Android x86
-    // commandLine("cargo", "build", "--release", "--target", "i686-linux-android")
-    // Android x86_64
-    // commandLine("cargo", "build", "--release", "--target", "x86_64-linux-android")
-}
-
-tasks.register("copyRustLibs", Copy.class) {
-    // Copy the compiled library (.so file) to the appropriate JNI folder
-    from("$rustLibPath/target/aarch64-linux-android/release")
-    into("src/main/jniLibs/arm64-v8a")
-    include("lib${rustLibName}.so")
-}
-
-tasks.whenTaskAdded { task ->
-    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
-        task.dependsOn("buildRust")
+tasks.register("copyNoirAndroidLib", Copy.class) {
+    download.run {
+        src("https://github.com/madztheo/noir_android/releases/download/v0.30.0-7/lib-release.aar")
+        dest("libs/noirandroid_lib-release.aar")
+        overwrite(false)
     }
-    if (task.name.matches(/merge.*JniLibFolders/)) {
-        task.dependsOn("copyRustLibs")
+}
+
+tasks.whenTaskAdded {
+    if (name == "javaPreCompileDebug" || name == "javaPreCompileRelease") {
+        dependsOn("copyNoirAndroidLib")
     }
 }

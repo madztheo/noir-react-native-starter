@@ -22,16 +22,12 @@ import java.io.FileOutputStream
 
 import android.util.Log
 import com.google.gson.Gson
+import com.noirandroid.lib.Circuit
 import noir.Proof
-import noir.Noir
 
 class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     override fun getName() = "NoirModule"
     var circuits: HashMap<String, Circuit> = HashMap()
-
-    init {
-      System.loadLibrary("noir_java")
-    }
 
     fun loadCircuit(circuitData: String, promise: Promise): String? {
         try {

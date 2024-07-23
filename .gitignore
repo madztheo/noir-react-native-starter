@@ -84,3 +84,4 @@ yarn-error.log
 **/*srs.local
 **/*Cargo.lock
 /scripts/**/target/**
+/android/app/libs
