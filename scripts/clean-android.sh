@@ -1,2 +1,3 @@
 cd android && ./gradlew clean
-cd ../../../../../
+rm -rf app/libs
+cd ../..
