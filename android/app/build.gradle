@@ -119,7 +119,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.9")
     // Ideally we want to use jitpack instead of downloading the aar file
     // but for now it fails to load noir_java native library if we use jitpack
-    //implementation("com.github.madztheo:noir_android:0.30.0-7")
+    //implementation("com.github.madztheo:noir_android:0.30.0-8")
     implementation files('libs/noirandroid_lib-release.aar')
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -132,7 +132,7 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 
 tasks.register("copyNoirAndroidLib", Copy.class) {
     download.run {
-        src("https://github.com/madztheo/noir_android/releases/download/v0.30.0-7/lib-release.aar")
+        src("https://github.com/madztheo/noir_android/releases/download/v0.30.0-8/lib-release.aar")
         dest("libs/noirandroid_lib-release.aar")
         overwrite(false)
     }
