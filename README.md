@@ -64,6 +64,8 @@ This will download the SRS and package it into the app binary, and you'll be rea
 **Why do I need to know the circuit with the highest gate count?**
 The SRS is the same for all circuits, so you only need to download it once. But you only need a fraction of it according to the size of the circuit you are using. So instead of downloading the whole SRS, which is over 300MB, you can download the chunk of the SRS that is needed to prove the biggest circuit you plan to use. This way you will have a much smaller SRS file to store (likely less than 50MB).
 
+**Note**: You can still download the SRS without specifying a circuit, just run `./scripts/download-srs.sh` without any argument. This will download the fraction of the SRS needed for a circuit of up to 512k constraints, which should be enough in most cases.
+
 ### You don't know which circuits you will use for now and just want to try things out
 
 Then you can skip the process described above and the app will revert to fetching the SRS from Aztec's server. This is the default strategy used in the app. This approach will slow down the proof generation process, especially if you have a slow network connection. Also it is not recommended for production as you should not expect users to have a fast connection at all times and this may severely impact their data plan without them realizing it.
