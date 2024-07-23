@@ -24,9 +24,10 @@ fn main() {
         None => {
             println!("No path provided, using default circuit size");
             println!("Downloading SRS...");
-            // Default to 512k constraints, which should be enough for most circuits
-            // that can work on a mobile device
-            let srs: Srs = NetSrs::new(512_000).to_srs();
+            // Default to around 512k constraints, which should be enough 
+            // for most circuits that can work on a mobile device
+            // This translates to a subgroup size of 524288 (the next power of 2 above 512k, i.e. 2^19)
+            let srs: Srs = NetSrs::new(524288 + 1).to_srs();
             local_srs = LocalSrs(srs);
             println!("SRS downloaded.");
         }
