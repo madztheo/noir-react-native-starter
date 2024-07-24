@@ -10,6 +10,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // Allow Maven to resolve the Noir Android library from JitPack
         maven { url 'https://jitpack.io' }
     }
     dependencies {
