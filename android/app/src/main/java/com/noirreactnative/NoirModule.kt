@@ -23,7 +23,7 @@ import java.io.FileOutputStream
 import android.util.Log
 import com.google.gson.Gson
 import com.noirandroid.lib.Circuit
-import noir.Proof
+import com.noirandroid.lib.Proof
 
 class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     override fun getName() = "NoirModule"
