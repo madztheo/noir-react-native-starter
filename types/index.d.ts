@@ -4,6 +4,7 @@ export type ParameterType = {
   kind: ParameterKind;
   length?: number;
   type?: ParameterType;
+  fields?: Parameter[];
 };
 
 export type Parameter = {

@@ -1,5 +1,5 @@
 import {NativeModules, Platform} from 'react-native';
-import {Circuit} from '../types';
+import {Circuit, Parameter, ParameterType} from '../types';
 const {NoirModule} = NativeModules;
 
 /**
@@ -28,19 +28,38 @@ export async function setupCircuit(circuit: Circuit) {
   return circuitId as string;
 }
 
-function getLastIndexOfPublicInputs(circuit: Circuit) {
+function computeInputArraySize(type: ParameterType) {
+  let count = 0;
+  if (type.type && type.type.kind === 'array') {
+    count += (type.length || 0) * computeInputArraySize(type.type);
+  } else {
+    count += type.length || 0;
+  }
+  return count;
+}
+
+function computePublicInputsSize(params: Parameter[]) {
   let fieldCount = 0;
-  for (let param of circuit.abi.parameters) {
+  for (let param of params) {
     if (param.visibility === 'private') {
       continue;
     }
-    const param_witness = circuit.abi.param_witnesses[param.name];
-    for (let witness of param_witness) {
-      fieldCount += witness.end - witness.start;
+    if (param.type.kind === 'array') {
+      fieldCount += computeInputArraySize(param.type);
+    } else if (param.type.kind === 'string') {
+      fieldCount += param.type.length || 0;
+    } else if (param.type.kind === 'struct') {
+      fieldCount += computePublicInputsSize(param.type.fields!);
+    } else {
+      fieldCount += 1;
     }
   }
+  return fieldCount;
+}
+
+function getLastIndexOfPublicInputs(circuit: Circuit) {
   // Each field is encoded as a hexadecimal string of 64 characters (i.e. 32 bytes)
-  return fieldCount * 64;
+  return computePublicInputsSize(circuit.abi.parameters) * 64;
 }
 
 /**

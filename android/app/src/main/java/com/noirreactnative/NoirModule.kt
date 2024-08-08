@@ -93,7 +93,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
     @ReactMethod fun prepareSrs(promise: Promise) {
         Thread {
-            val srsPath = getLocalSrsPath()
+            getLocalSrsPath()
             
             var result = Arguments.createMap()
             result.putBoolean("success", true)
@@ -130,7 +130,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proof: Proof? = circuit?.prove(inputs.toHashMap(), proofType ?: "plonk")
+                var proof: Proof? = circuit.prove(inputs.toHashMap(), proofType ?: "plonk")
 
                 var result: WritableMap = Arguments.createMap()
                 result.putString("proof", proof!!.proof)
@@ -152,8 +152,8 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proof: Proof = Proof(proof, vkey)
-                var verified: Boolean? = circuit?.verify(proof, proofType ?: "plonk")
+                var proofObj: Proof = Proof(proof, vkey)
+                var verified: Boolean? = circuit.verify(proofObj, proofType ?: "plonk")
 
                 var result: WritableMap = Arguments.createMap()
                 result.putBoolean("verified", verified!!)

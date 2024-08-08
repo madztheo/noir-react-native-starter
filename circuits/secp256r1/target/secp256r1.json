@@ -1,6 +1,6 @@
 {
-  "noir_version": "0.30.0+af57471035e4fa7eaffa71693219df6d029dbcde",
-  "hash": 5294888885177613296,
+  "noir_version": "0.31.0+540bef3597bd3e5775c83ec2ee3c0d4463084b4c",
+  "hash": 2386245826073743598,
   "abi": {
     "parameters": [
       {
@@ -40,20 +40,13 @@
         "visibility": "private"
       }
     ],
-    "param_witnesses": {
-      "message_hash": [{"start": 128, "end": 160}],
-      "public_key_x": [{"start": 0, "end": 32}],
-      "public_key_y": [{"start": 32, "end": 64}],
-      "signature": [{"start": 64, "end": 128}]
-    },
     "return_type": null,
-    "return_witnesses": [],
     "error_types": {}
   },
   "bytecode": "H4sIAAAAAAAA/6WWZW+bdxxFnyzd1jEzpesgYzu2E3vUdB1kzExJWmcZ81ZuyszMUT9pe+X/kdLzpi/6SNbPR5EeWZHuubev6j2zFz7nyve+C5/+8n3+HO4TXyHuF88TXym+Sny1eL74GvG14uvE14tvEN8ovkl8s/gW8a3i28S3i+8Q3ym+S3y3+B7xveL7xPeLHxA/KH5IPCBeIH5YvFD8iPhR8WPix8WD4ifET4qfEj8tfkb8rPg5cU1cFw+JG+KmuCUeFo+I2+KO+HnxC+IXxS+JXxYvEo+KF4tfES8Rvyp+Tfy6+A3xmPhN8Vvit8XviN8Vvyd+X/yB+EPxR+KPxZ+IPxV/Jv5c/IX4S/FX4q/F34i/FX8n/l48Lp4QT4qXipeJu+Ip8Q/iafGP4p/EP4t/Ef8q/k38u/gP8Z/iv8R/i/8R/yv+T/y/eLl4hXileJV4tXiNeK14nXhGvF68QbxRvEm8WbxFvFW8TbxdvEO8U7xLvFu8R7xXvE+8X3xAfFB8SHxYfER8VHxMfFx8QnxSfEp8WnxGfHYOZ0tVcziXvddfLvuOXceeY8fxYbex19hp7DN2GXuMHcb+Ynext9hZ7Ct2FXuKHcV+Yjexl9hJ7CN2EXuIHTRQ7oJy2TsLy2XfsGvYM+yYwXLZLewVdgr7hF3CHmGHsD/YHewNdgb7gl3BnmBHsB/YDewFdgL7gF3AHmAHjJa7uFz6fkm59Du9Tp/T42Pl0tv0NT1NP9PL9DE9TP/Su/QtPUu/0qv0KT1Kf9Kb9CU9ST/Si/QhPThe7kS59N3Scuk3eo0+o8emy6W36Ct6in6il+gjeoj+oXfoG3qGfqFX6BN6hP6gN+gLeoJ+oBfoA3pgply8j+/xPH7H6/gcj28rF2/jazyNn/EyPsbD+Bfv4ls8i1/xKj7Fo/gTb+JLPIkf8SI+xIOz1cVPX7mj5dYu76nPznlXozbcbHZHhrr1Rn2iNtSZbLdqzdbkcLverrfarWVD7Uaj2262RzqTnZFap95sdOtTrU5jqrwsv21eedesfnO83V/+HlfH0zg6bo6X4+T4OC6Oh+Pg+DfujXfj3Pg2ro1n49j4NW6NV+PU+DQujUfj0IGq5854M86ML+PKeDKOHKx6bowX48T4MC6MB+PA+C/ui/fivPgurovn4rj4LW6L1+K0+Cwui8cWlf9t3BVvxVnxVVwVT8VRY1XPTfFSnBQfxUXxUBwU/8Q98U6cE9/ENfFMHBO/xC3xSpwSn8Ql8UgcMl713BFvxBnxRVwRT8QR01XPDfFCnBAfxAXxQByQ/Cf7yX0yn7wn68l5Mp58J9vJdTKdPCfLyXEyPFP1spvcJrPJa7KanCajyWeymVwmk8ljspgcJoPJX7KX3CVzyVuylpwlY8lXspVcJVPJU7KUHCVDl3zOA5qPh+F9EgAA",
-  "debug_symbols": "bY7BCoMwEET/Zc45GLER8iullFVjCYSNmFgowX/vpsWD4PHt7GOmYHLD9np6nmOCvReEOFL2kYUKtGl+x7QQV06Z1gyrjVZwPMG2Xb8rzD442M7sDyWKvlJa0xxKfzspAm9aPQ3B1c6abTweEwTzZ/kn8vsF",
+  "debug_symbols": "bY5BCoMwEEXv8tdZGGkj5CqllFFjCYSJmFgooXfvRHEhuJs3fx7zC0bXr++X5ykm2EdBiANlH1moQJtmW6aZuHLKtGRYbbSC4xG2vXU/hckHByvjU4mir5TWNIfS3U+KwIcWT31w9WfNVh6OCoL5O++J3P4B",
   "file_map": {
-    "46": {
+    "47": {
       "source": "use dep::std::ecdsa_secp256r1;\n\nfn main(public_key_x: [u8; 32], public_key_y: [u8; 32], signature: [u8; 64], message_hash: [u8; 32]) {\n    let valid_signature = ecdsa_secp256r1::verify_signature(public_key_x, public_key_y, signature, message_hash);\n    assert(valid_signature);\n}\n\n#[test]\nfn test_main() {\n    let pub_key_x = [\n        8, 115, 220, 188, 4, 148, 236, 206,\n        160, 168, 66, 167, 49, 172, 127, 40,\n        4, 237, 255, 39, 134, 80, 45, 198,\n        75, 120, 226, 225, 25, 186, 167, 166\n    ];\n\n    let pub_key_y = [\n        48, 244, 109, 4, 181, 31, 195,\n        252, 151, 68, 109, 62, 232, 223,\n        145, 160, 192, 244, 214, 76, 233,\n        105, 250, 65, 97, 118, 181, 238,\n        149, 188, 97, 227\n    ];\n\n    let signature = [\n        135, 158, 138, 110, 148, 39, 150, 7, 79, 143, 70,\n        22, 225, 192, 232, 217, 48, 173, 57, 165, 91, 74,\n        239, 134, 249, 242, 221, 162, 85, 153, 67, 91, 111,\n        240, 37, 162, 69, 238, 167, 234, 236, 104, 222, 55,\n        111, 236, 54, 58, 132, 9, 115, 16, 60, 28, 253,\n        228, 112, 42, 248, 193, 157, 7, 246, 233\n    ];\n\n    let message = [\n        137, 176, 207, 34, 13, 133, 76, 21, 244,\n        143, 220, 18, 201, 230, 9, 192, 75, 133,\n        105, 73, 233, 97, 9, 164, 200, 116, 62,\n        82, 146, 207, 62, 147\n    ];\n    main(pub_key_x, pub_key_y, signature, message);\n}\n",
       "path": "/Users/madztheo/Documents/Wagmi/Studio/RnD/Docaproof/noir-libs/NoirReactNative/circuits/secp256r1/src/main.nr"
     }
