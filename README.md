@@ -183,6 +183,6 @@ While still a work of progress, Honk APIs are already exposed in Barretenberg an
 
 You will notice Honk is substantially faster than UltraPlonk, and uses less memory than UltraPlonk. However, it is still in development and there is no fully working on-chain verifier for it at the moment.
 
-## Noir version currently supported
+## Latest supported version of Noir
 
-The current version of Noir supported by the app is 0.30.0
+The latest supported version of Noir is 0.32.0

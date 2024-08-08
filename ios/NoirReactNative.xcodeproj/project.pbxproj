@@ -819,7 +819,7 @@
 			repositoryURL = "https://github.com/madztheo/Swoir";
 			requirement = {
 				kind = exactVersion;
-				version = "0.31.0-1";
+				version = "0.32.0-1";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
