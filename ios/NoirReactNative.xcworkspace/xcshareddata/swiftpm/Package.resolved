@@ -1,10 +1,10 @@
 {
-  "originHash" : "138a6caf6398d1917e553f5a229794ccaff106543c567153b19b39221e012961",
+  "originHash" : "6a02a6d513adbc3ecf9f21fbb550206998ba21c38f24d4a06538dd514b5b0e1f",
   "pins" : [
     {
       "identity" : "swoir",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/madztheo/Swoir",
+      "location" : "https://github.com/Swoir/Swoir",
       "state" : {
         "revision" : "85072aaa76ee223441f52e0d49774cbb34a485e6",
         "version" : "0.32.0-1"
