@@ -79,6 +79,7 @@ yarn-error.log
 /circuits/**/target/vk**
 /circuits/**/proofs
 /android/app/src/main/jniLibs
+/circuits/rsa-pkcs1
 
 **/*srs.dat
 **/*srs.local
