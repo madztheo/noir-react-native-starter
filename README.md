@@ -62,6 +62,10 @@ The SRS is the same for all circuits, so you only need to download it once. But 
 
 Then you can skip the process described above and the app will revert to fetching the SRS from Aztec's server. This is the default strategy used in the app. This approach will slow down the proof generation process, especially if you have a slow network connection. Also it is not recommended for production as you should not expect users to have a fast connection at all times and this may severely impact their data plan without them realizing it.
 
+### You tried with the script but it didn't work
+
+You could try opening an issue if that's the case. But, the easier option is to download the SRS from [here](https://drive.google.com/file/d/1Vs0rEhpzN_ZYxKaEtuvX4RUvUcGwVQm1/view?usp=drive_link) and place it manually in the `ios` folder and the `android/app/src/main/res/raw/` folder. This SRS chunk is enough for a circuit of up to 512k constraints, which should be enough for most use cases.
+
 ## Usage
 
 ### Setup the circuit
@@ -177,11 +181,9 @@ This app comes with a basic Noir circuit checking that the prover knows two priv
 
 Bear in mind that mobile phones have a limited amount of available RAM. The circuit used in this app is really simple so the memory usage is not a problem. However, if you plan to use more complex circuits, you should be aware that the memory usage will increase and may go above the available memory on the device causing the proof generation to fail.
 
-## A note on Honk
+## A note on Honk vs Plonk
 
-While still a work of progress, Honk APIs are already exposed in Barretenberg and this app gives the ability to tap into it. You can switch between Honk and UltraPlonk (current proofs used by Noir) by specifying the `proofType` of the prove and verify functions. Specify `honk` to use Honk and `plonk` to use UltraPlonk. If not specified, the default is UltraPlonk.
-
-You will notice Honk is substantially faster than UltraPlonk, and uses less memory than UltraPlonk. However, it is still in development and there is no fully working on-chain verifier for it at the moment.
+Honk is the most recent proof system developed by Aztec and is faster and less memory intensive than UltraPlonk. It is now becoming more mature and Plonk is expected to be deprecated in the near future from Aztec's backend (Barretenberg). Therefore, it is recommended to use Honk over Plonk as support for Plonk will be dropped soon.
 
 ## Latest supported version of Noir
 
