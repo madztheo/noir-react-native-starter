@@ -11,12 +11,14 @@
 @interface RCT_EXTERN_MODULE(NoirModule, NSObject)
 
 RCT_EXTERN_METHOD(setupCircuit:(NSString)circuitData
+                  recursive:(BOOL)recursive
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(prove:(NSDictionary)inputs
                   circuitId:(NSString)circuitId
                   proofType:(NSString)proofType
+                  recursive:(BOOL)recursive
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

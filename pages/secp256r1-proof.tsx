@@ -28,7 +28,7 @@ export default function Secp256r1Proof() {
   useEffect(() => {
     // First call this function to load the circuit and setup the SRS for it
     // Keep the id returned by this function as it is used to identify the circuit
-    setupCircuit(circuit as Circuit).then(id => setCircuitId(id));
+    setupCircuit(circuit as unknown as Circuit).then(id => setCircuitId(id));
     return () => {
       if (circuitId) {
         // Clean up the circuit after the component is unmounted
@@ -69,12 +69,13 @@ export default function Secp256r1Proof() {
           ],
         },
         circuitId!,
-        'honk',
       );
       const end = Date.now();
       setProvingTime(end - start);
       setProofAndInputs(proofWithPublicInputs);
-      setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
+      setProof(
+        extractProof(circuit as unknown as Circuit, proofWithPublicInputs),
+      );
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -88,12 +89,7 @@ export default function Secp256r1Proof() {
     try {
       // No need to provide the circuit here, as it was already loaded
       // during the proof generation
-      const verified = await verifyProof(
-        proofAndInputs,
-        vkey,
-        circuitId!,
-        'honk',
-      );
+      const verified = await verifyProof(proofAndInputs, vkey, circuitId!);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {

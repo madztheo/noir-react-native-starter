@@ -97,12 +97,11 @@ await clearCircuit(circuitId);
 
 ### Proving
 
-To generate a proof, call the `generateProof` function passing it the `circuitId`, the inputs and the type of proof you want to generate. Most type of inputs are supported such as integer, field, arrays and struct. The function will return the proof with the public inputs and the verification key of the circuit (needed for verification).
+To generate a proof, call the `generateProof` function passing it the `circuitId` and the inputs. Most type of inputs are supported such as integer, field, arrays and struct. The function will return the proof with the public inputs and the verification key of the circuit (needed for verification).
 
 ```typescript
 import {generateProof} from '../lib/noir';
 
-// For UltraPlonk proofs
 const {proofWithPublicInputs, vkey} = await generateProof(
   {
     a: 5,
@@ -110,24 +109,12 @@ const {proofWithPublicInputs, vkey} = await generateProof(
     result: 35,
   },
   circuitId,
-  'plonk',
-);
-
-// For Honk proofs
-const {proofWithPublicInputs, vkey} = await generateProof(
-  {
-    a: 5,
-    b: 7,
-    result: 35,
-  },
-  circuitId,
-  'honk',
 );
 ```
 
 ### Remove the public inputs from the proof
 
-If you want only the proof, stripped of its public inputs, you can call the `extractProof` function passing it the proof with public inputs and the circuit. It will return just the proof (may not work as expected with Honk for now).
+If you want only the proof, stripped of its public inputs, you can call the `extractProof` function passing it the proof with public inputs and the circuit. It will return just the proof.
 
 ```typescript
 import circuit from './path/to/your/circuit/target/<your_circuit_name>.json';
@@ -139,26 +126,12 @@ const proof = extractProof(circuit as Circuit, proofWithPublicInputs);
 
 ### Verifying
 
-To verify a proof, call the `verifyProof` function passing it the `circuitId`, the proof, the verification key and the proof type. It will return a boolean indicating if the proof is valid or not.
+To verify a proof, call the `verifyProof` function passing it the `circuitId`, the proof and the verification key. It will return a boolean indicating if the proof is valid or not.
 
 ```typescript
 import {verifyProof} from '../lib/noir';
 
-// For UltraPlonk proofs
-const isValid = await verifyProof(
-  proofWithPublicInputs,
-  vkey,
-  circuitId,
-  'plonk',
-);
-
-// For Honk proofs
-const isValid = await verifyProof(
-  proofWithPublicInputs,
-  vkey,
-  circuitId,
-  'honk',
-);
+const isValid = await verifyProof(proofWithPublicInputs, vkey, circuitId);
 ```
 
 **Note**: You can look at the different pages in the `pages` folder to see how it is used in the app more concretely.
@@ -171,7 +144,7 @@ This app comes with a basic Noir circuit checking that the prover knows two priv
 2. Create a new folder for your circuit such as `my_circuit`
 3. Create a `Nargo.toml` file in this folder following the structure of the `Nargo.toml` file in the other subfolders of the `circuits` folder. Don't forget to change the name of the circuit in the `name` field
 4. Create a `src` folder and create a `main.nr` file in it
-5. Make sure you have the version 0.36.0 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 0.36.0`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
+5. Make sure you have the version 1.0.0-beta.0 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 1.0.0-beta.0`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
 6. Write your Noir code in `main.nr` and run `nargo check` to generate the `Prover.toml` and `Verifier.toml` files
 7. Run `nargo compile` to compile the circuit
 8. It will generate a new `<your_circuit_name>.json` file in `/target`
@@ -183,8 +156,8 @@ Bear in mind that mobile phones have a limited amount of available RAM. The circ
 
 ## A note on Honk vs Plonk
 
-Honk is the most recent proof system developed by Aztec and is faster and less memory intensive than UltraPlonk. It is now becoming more mature and Plonk is expected to be deprecated in the near future from Aztec's backend (Barretenberg). Therefore, it is recommended to use Honk over Plonk as support for Plonk will be dropped soon.
+Honk is the most recent proof system developed by Aztec and is faster and less memory intensive than UltraPlonk. It is now becoming more mature and Plonk is expected to be deprecated in the near future from Aztec's backend (Barretenberg). Therefore, UltraPlonk suppport has been removed from the app.
 
 ## Latest supported version of Noir
 
-The latest supported version of Noir is 0.36.0
+The latest supported version of Noir is 1.0.0-beta.0 with Barretenberg 0.67 as backend.

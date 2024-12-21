@@ -101,7 +101,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun setupCircuit(circuitData: String, promise: Promise) {
+    @ReactMethod fun setupCircuit(circuitData: String, recursive: Boolean, promise: Promise) {
         Thread {
             val circuitId = loadCircuit(circuitData, promise)
             if (circuitId == null) {
@@ -113,7 +113,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
             val localSrs = getLocalSrsPath()
 
-            circuit?.setupSrs(localSrs)
+            circuit?.setupSrs(localSrs, recursive ?: false)
 
             var result: WritableMap = Arguments.createMap()
             result.putString("circuitId", circuitId)
@@ -121,7 +121,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
      }
 
-    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, proofType: String?, promise: Promise) {
+    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, proofType: String, recursive: Boolean, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -130,7 +130,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proof: Proof? = circuit.prove(inputs.toHashMap(), proofType ?: "plonk")
+                var proof: Proof? = circuit.prove(inputs.toHashMap(), proofType ?: "honk", recursive ?: false)
 
                 var result: WritableMap = Arguments.createMap()
                 result.putString("proof", proof!!.proof)
@@ -143,7 +143,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun verify(proof: String, vkey: String, circuitId: String, proofType: String?, promise: Promise) {
+    @ReactMethod fun verify(proof: String, vkey: String, circuitId: String, proofType: String, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -153,7 +153,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
             try {
                 var proofObj: Proof = Proof(proof, vkey)
-                var verified: Boolean? = circuit.verify(proofObj, proofType ?: "plonk")
+                var verified: Boolean? = circuit.verify(proofObj, proofType ?: "honk")
 
                 var result: WritableMap = Arguments.createMap()
                 result.putBoolean("verified", verified!!)

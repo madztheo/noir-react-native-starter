@@ -79,8 +79,8 @@ class NoirModule: NSObject {
     return path
   }
 
-  @objc(setupCircuit:resolve:reject:)
-  func setupCircuit(_ circuitData: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(setupCircuit:recursive:resolve:reject:)
+  func setupCircuit(_ circuitData: String, recursive: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       let circuitId = try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
 
@@ -91,7 +91,7 @@ class NoirModule: NSObject {
       // online from Aztec servers
       let localSrs = getLocalSrsPath()
       
-      try circuit?.setupSrs(srs_path: localSrs)
+      try circuit?.setupSrs(srs_path: localSrs, recursive: recursive ?? false)
       
       resolve(["circuitId": circuitId])
     } catch {
@@ -100,8 +100,8 @@ class NoirModule: NSObject {
     }
   }
  
-  @objc(prove:circuitId:proofType:resolve:reject:)
-  func prove(_ inputs: [String: Any], circuitId: String, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(prove:circuitId:proofType:recursive:resolve:reject:)
+  func prove(_ inputs: [String: Any], circuitId: String, proofType: String, recursive: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       let circuit = circuits[circuitId]
       if circuit == nil {
@@ -109,7 +109,7 @@ class NoirModule: NSObject {
       }
 
       let start = DispatchTime.now()
-      let proof = try circuit?.prove(inputs, proof_type: proofType ?? "plonk")
+      let proof = try circuit?.prove(inputs, proof_type: proofType ?? "plonk", recursive: recursive ?? false)
       let end = DispatchTime.now()
       let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
       let timeInterval = Double(nanoTime) / 1_000_000
@@ -126,7 +126,7 @@ class NoirModule: NSObject {
   }
   
   @objc(verify:vkey:circuitId:proofType:resolve:reject:)
-  func verify(_ proof: String, vkey: String, circuitId: String, proofType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  func verify(_ proof: String, vkey: String, circuitId: String, proofType: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       let circuit = circuits[circuitId]
       if circuit == nil {

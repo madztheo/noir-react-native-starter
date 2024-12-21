@@ -33,7 +33,7 @@ export default function ProductProof() {
   useEffect(() => {
     // First call this function to load the circuit and setup the SRS for it
     // Keep the id returned by this function as it is used to identify the circuit
-    setupCircuit(circuit as Circuit).then(id => setCircuitId(id));
+    setupCircuit(circuit as unknown as Circuit).then(id => setCircuitId(id));
     return () => {
       if (circuitId) {
         // Clean up the circuit after the component is unmounted
@@ -65,12 +65,13 @@ export default function ProductProof() {
         },
         // The id returned by the setupCircuit function
         circuitId!,
-        'plonk',
       );
       const end = Date.now();
       setProvingTime(end - start);
       setProofAndInputs(proofWithPublicInputs);
-      setProof(extractProof(circuit as Circuit, proofWithPublicInputs));
+      setProof(
+        extractProof(circuit as unknown as Circuit, proofWithPublicInputs),
+      );
       setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
@@ -89,7 +90,6 @@ export default function ProductProof() {
         vkey,
         // The id returned by the setupCircuit function
         circuitId!,
-        'plonk',
       );
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');

@@ -1,4 +1,4 @@
-use noir_rs::srs::{get_srs, localsrs::LocalSrs, netsrs::NetSrs, Srs};
+use noir_rs::barretenberg::srs::{get_srs, localsrs::LocalSrs, netsrs::NetSrs, Srs};
 use serde_json::Value;
 
 fn main() {
@@ -20,7 +20,7 @@ fn main() {
                 .expect("Failed to get bytecode");
 
             println!("Circuit decoded. Downloading SRS...");
-            let srs: Srs = get_srs(bytecode.to_string(), None);
+            let srs: Srs = get_srs(bytecode, None, false);
             local_srs = LocalSrs(srs);
             println!("SRS downloaded.");
         }
