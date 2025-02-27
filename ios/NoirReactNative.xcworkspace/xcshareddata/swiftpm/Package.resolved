@@ -7,7 +7,7 @@
       "location" : "https://github.com/Swoir/Swoir",
       "state" : {
         "revision" : "fd215d9c4a272b8ba251672ef05de1f36d20a423",
-        "version" : "1.0.0-beta.1-1"
+        "version" : "1.0.0-beta.3-1"
       }
     },
     {
@@ -25,7 +25,7 @@
       "location" : "https://github.com/Swoir/Swoirenberg.git",
       "state" : {
         "revision" : "be0ad85186858e78bf6ac8e77be2288514bd2095",
-        "version" : "1.0.0-beta.1-1"
+        "version" : "1.0.0-beta.3-1"
       }
     }
   ],

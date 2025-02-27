@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-noir_rs = { git = "https://github.com/zkpassport/noir_rs.git", branch = "v1.0.0-beta.1", features = ["barretenberg"] }
+noir_rs = { git = "https://github.com/zkpassport/noir_rs.git", branch = "v1.0.0-beta.3", features = ["barretenberg"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

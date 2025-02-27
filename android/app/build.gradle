@@ -114,7 +114,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.google.code.gson:gson:2.8.9")
     // Loads the Noir Android library through JitPack
-    implementation("com.github.madztheo:noir_android:1.0.0-beta.1-1")
+    implementation("com.github.madztheo:noir_android:v1.0.0-beta.3-1")
     // If you're using the aar file directly (e.g. for testing with a locally modified version of the lib),
     // you can use the following line (assuming the aar file is in the libs folder and named noirandroid_lib-release.aar):
     // implementation files('libs/noirandroid_lib-release.aar')
