@@ -102,7 +102,7 @@ To generate a proof, call the `generateProof` function passing it the `circuitId
 ```typescript
 import {generateProof} from '../lib/noir';
 
-const {proofWithPublicInputs, vkey} = await generateProof(
+const {proofWithPublicInputs} = await generateProof(
   {
     a: 5,
     b: 7,
@@ -131,7 +131,7 @@ To verify a proof, call the `verifyProof` function passing it the `circuitId`, t
 ```typescript
 import {verifyProof} from '../lib/noir';
 
-const isValid = await verifyProof(proofWithPublicInputs, vkey, circuitId);
+const isValid = await verifyProof(proofWithPublicInputs, circuitId);
 ```
 
 **Note**: You can look at the different pages in the `pages` folder to see how it is used in the app more concretely.
@@ -144,7 +144,7 @@ This app comes with a basic Noir circuit checking that the prover knows two priv
 2. Create a new folder for your circuit such as `my_circuit`
 3. Create a `Nargo.toml` file in this folder following the structure of the `Nargo.toml` file in the other subfolders of the `circuits` folder. Don't forget to change the name of the circuit in the `name` field
 4. Create a `src` folder and create a `main.nr` file in it
-5. Make sure you have the version 1.0.0-beta.3 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 1.0.0-beta.3`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
+5. Make sure you have the version 1.0.0-beta.7 of `nargo`. You can check by running `nargo --version`. If you have a different version, you can use `noirup -v 1.0.0-beta.7`. And if you don't have `noirup` follow the instructions [here](https://noir-lang.org/docs/getting_started/installation/).
 6. Write your Noir code in `main.nr` and run `nargo check` to generate the `Prover.toml` and `Verifier.toml` files
 7. Run `nargo compile` to compile the circuit
 8. It will generate a new `<your_circuit_name>.json` file in `/target`
@@ -160,4 +160,4 @@ Honk is the most recent proof system developed by Aztec and is faster and less m
 
 ## Latest supported version of Noir
 
-The latest supported version of Noir is 1.0.0-beta.3 with Barretenberg 0.76.4 as backend.
+The latest supported version of Noir is 1.0.0-beta.7 with Barretenberg 1.0.0-nightly.20250701 as backend.
