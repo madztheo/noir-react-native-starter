@@ -20,7 +20,6 @@ import {Circuit} from '../types';
 export default function PedersenProof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
   const [proof, setProof] = useState('');
-  const [vkey, setVkey] = useState('');
   const [generatingProof, setGeneratingProof] = useState(false);
   const [verifyingProof, setVerifyingProof] = useState(false);
   const [inputs, setInputs] = useState({
@@ -52,7 +51,7 @@ export default function PedersenProof() {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
       const start = Date.now();
-      const {proofWithPublicInputs, vkey: _vkey} = await generateProof(
+      const {proofWithPublicInputs} = await generateProof(
         {
           a: Number(inputs.a),
           b: Number(inputs.b),
@@ -65,7 +64,6 @@ export default function PedersenProof() {
       setProof(
         extractProof(circuit as unknown as Circuit, proofWithPublicInputs),
       );
-      setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
@@ -78,7 +76,7 @@ export default function PedersenProof() {
     try {
       // No need to provide the circuit here, as it was already loaded
       // during the proof generation
-      const verified = await verifyProof(proofAndInputs, vkey, circuitId!);
+      const verified = await verifyProof(proofAndInputs, circuitId!);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {

@@ -23,15 +23,14 @@ import java.io.FileOutputStream
 import android.util.Log
 import com.google.gson.Gson
 import com.noirandroid.lib.Circuit
-import com.noirandroid.lib.Proof
 
 class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     override fun getName() = "NoirModule"
     var circuits: HashMap<String, Circuit> = HashMap()
 
-    fun loadCircuit(circuitData: String, promise: Promise): String? {
+    fun loadCircuit(circuitData: String, size: Int, promise: Promise): String? {
         try {
-            val circuit = Circuit.fromJsonManifest(circuitData)
+            val circuit = Circuit.fromJsonManifest(circuitData, size)
             val id = circuit.manifest.hash.toLong().toString()
             circuits.put(id, circuit)
             return id
@@ -101,9 +100,9 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun setupCircuit(circuitData: String, recursive: Boolean, promise: Promise) {
+    @ReactMethod fun setupCircuit(circuitData: String, size: Int, promise: Promise) {
         Thread {
-            val circuitId = loadCircuit(circuitData, promise)
+            val circuitId = loadCircuit(circuitData, size, promise)
             if (circuitId == null) {
                 promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
                 return@Thread
@@ -113,7 +112,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
             val localSrs = getLocalSrsPath()
 
-            circuit?.setupSrs(localSrs, recursive ?: false)
+            circuit?.setupSrs(localSrs)
 
             var result: WritableMap = Arguments.createMap()
             result.putString("circuitId", circuitId)
@@ -121,7 +120,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
      }
 
-    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, proofType: String, recursive: Boolean, promise: Promise) {
+    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -130,11 +129,10 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proof: Proof? = circuit.prove(inputs.toHashMap(), proofType ?: "honk", recursive ?: false)
+                var proof: String? = circuit.prove(inputs.toHashMap())
 
                 var result: WritableMap = Arguments.createMap()
-                result.putString("proof", proof!!.proof)
-                result.putString("vkey", proof!!.vk)
+                result.putString("proof", proof)
                 promise.resolve(result)
             } catch (e: Exception) {
                 Log.d("PROOF_GENERATION_ERROR", e.toString())
@@ -143,7 +141,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun verify(proof: String, vkey: String, circuitId: String, proofType: String, promise: Promise) {
+    @ReactMethod fun verify(proof: String, circuitId: String, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -152,16 +150,33 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proofObj: Proof = Proof(proof, vkey)
-                var verified: Boolean? = circuit.verify(proofObj, proofType ?: "honk")
+                var verified: Boolean? = circuit.verify(proof)
 
                 var result: WritableMap = Arguments.createMap()
                 result.putBoolean("verified", verified!!)
                 promise.resolve(result)
             } catch (e: Exception) {
-                Log.d("PROOF_VERIFICATION_ERRORf", e.toString())
-                promise.reject("PROOF_VERIFICATION_ERROR", "Unable to verify the proof. Check the proof and verification key is formatted correctly")
+                Log.d("PROOF_VERIFICATION_ERROR", e.toString())
+                promise.reject("PROOF_VERIFICATION_ERROR", "Unable to verify the proof. Check the proof is formatted correctly")
             }
+        }.start()
+    }
+
+    @ReactMethod fun execute(inputs: ReadableMap, circuitId: String, promise: Promise) {
+        Thread {
+            val circuit = circuits.get(circuitId)
+            if (circuit == null) {
+                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before executing")
+                return@Thread
+            }
+
+            var witness: Array<String>? = circuit.execute(inputs.toHashMap())  
+            var witnessArray: WritableArray = Arguments.createArray()
+            witness?.forEach { witnessArray.pushString(it) }
+
+            var result: WritableMap = Arguments.createMap()
+            result.putArray("witness", witnessArray)
+            promise.resolve(result)
         }.start()
     }
 

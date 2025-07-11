@@ -20,7 +20,6 @@ import {Circuit} from '../types';
 export default function ProductProof() {
   const [proofAndInputs, setProofAndInputs] = useState('');
   const [proof, setProof] = useState('');
-  const [vkey, setVkey] = useState('');
   const [generatingProof, setGeneratingProof] = useState(false);
   const [verifyingProof, setVerifyingProof] = useState(false);
   const [factors, setFactors] = useState({
@@ -57,7 +56,7 @@ export default function ProductProof() {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
       const start = Date.now();
-      const {proofWithPublicInputs, vkey: _vkey} = await generateProof(
+      const {proofWithPublicInputs} = await generateProof(
         {
           a: Number(factors.a),
           b: Number(factors.b),
@@ -72,7 +71,6 @@ export default function ProductProof() {
       setProof(
         extractProof(circuit as unknown as Circuit, proofWithPublicInputs),
       );
-      setVkey(_vkey);
     } catch (err: any) {
       Alert.alert('Something went wrong', JSON.stringify(err));
       console.error(err);
@@ -87,7 +85,6 @@ export default function ProductProof() {
       // during the proof generation
       const verified = await verifyProof(
         proofAndInputs,
-        vkey,
         // The id returned by the setupCircuit function
         circuitId!,
       );

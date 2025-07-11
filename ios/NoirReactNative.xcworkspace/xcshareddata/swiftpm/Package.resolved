@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Swoir/Swoir",
       "state" : {
-        "revision" : "fd215d9c4a272b8ba251672ef05de1f36d20a423",
-        "version" : "1.0.0-beta.3-1"
+        "revision" : "a1a4dfc8dc336c211797db1f8dc9632ae85387cc",
+        "version" : "1.0.0-beta.7-2"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Swoir/SwoirCore.git",
       "state" : {
-        "revision" : "3c0d15402869c5f9ab416c5aa16a44693828b146",
-        "version" : "0.7.0"
+        "revision" : "35ce7e734bedca50b4266a0e9a64f57187891c46",
+        "version" : "0.9.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Swoir/Swoirenberg.git",
       "state" : {
-        "revision" : "be0ad85186858e78bf6ac8e77be2288514bd2095",
-        "version" : "1.0.0-beta.3-1"
+        "revision" : "b41c74cb2e885caaeb59e3669bc373908cbc6dc6",
+        "version" : "1.0.0-beta.7-2"
       }
     }
   ],

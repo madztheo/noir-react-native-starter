@@ -559,7 +559,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G9LK8MWKT2;
+				DEVELOPMENT_TEAM = YL5MS3Z639;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = NoirReactNative/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Noir React Native";
@@ -600,7 +600,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G9LK8MWKT2;
+				DEVELOPMENT_TEAM = YL5MS3Z639;
 				INFOPLIST_FILE = NoirReactNative/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Noir React Native";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -822,7 +822,7 @@
 			repositoryURL = "https://github.com/Swoir/Swoir";
 			requirement = {
 				kind = exactVersion;
-				version = "1.0.0-beta.3-1";
+				version = "1.0.0-beta.7-2";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

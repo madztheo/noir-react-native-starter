@@ -60,9 +60,9 @@ class NoirModule: NSObject {
   var swoir = Swoir(backend: Swoirenberg.self)
   var circuits: [String: Circuit] = [:]
   
-  func loadCircuit(circuitData: Data) throws -> String {
+  func loadCircuit(circuitData: Data, size: UInt32?) throws -> String {
     do {
-      let circuit = try swoir.createCircuit(manifest: circuitData)
+      let circuit = try swoir.createCircuit(manifest: circuitData, size: size)
       let id = circuit.manifest.hash.description
       circuits[id] = circuit
       return id
@@ -79,67 +79,134 @@ class NoirModule: NSObject {
     return path
   }
 
-  @objc(setupCircuit:recursive:resolve:reject:)
-  func setupCircuit(_ circuitData: String, recursive: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    do {
-      let circuitId = try loadCircuit(circuitData: circuitData.data(using: .utf8)!)
-
-      let circuit = circuits[circuitId]
-      
-      // Try to get the local srs if any
-      // If no local srs file is found, it will be fetched directly
-      // online from Aztec servers
-      let localSrs = getLocalSrsPath()
-      
-      try circuit?.setupSrs(srs_path: localSrs, recursive: recursive ?? false)
-      
-      resolve(["circuitId": circuitId])
-    } catch {
-      print("Error", error)
-      reject("CIRCUIT_SETUP_ERROR", "Error setting up the circuit", error)
+  @objc(setupCircuit:size:resolve:reject:)
+  func setupCircuit(_ circuitData: String, size: Int, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    // Run circuit setup in background thread
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        do {
+          let circuitId = try self.loadCircuit(circuitData: circuitData.data(using: .utf8)!, size: UInt32(size))
+          guard let circuit = self.circuits[circuitId] else {
+            DispatchQueue.main.async {
+              reject("CIRCUIT_SETUP_ERROR", "Failed to load circuit", CircuitError.undefinedCircuit)
+            }
+            return
+          }
+          
+          // Get local srs path
+          //let localSrs = self.getLocalSrsPath()
+          
+          // Setup SRS in background
+          try circuit.setupSrs()
+          
+          DispatchQueue.main.async {
+            resolve(["circuitId": circuitId])
+          }
+        } catch {
+          print("Error", error)
+          DispatchQueue.main.async {
+            reject("CIRCUIT_SETUP_ERROR", "Error setting up the circuit", error)
+          }
+        }
+      }
     }
   }
  
-  @objc(prove:circuitId:proofType:recursive:resolve:reject:)
-  func prove(_ inputs: [String: Any], circuitId: String, proofType: String, recursive: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    do {
-      let circuit = circuits[circuitId]
-      if circuit == nil {
-        throw CircuitError.undefinedCircuit
+  @objc(prove:circuitId:resolve:reject:)
+  func prove(_ inputs: [String: Any], circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    // Capture circuit reference on main thread before dispatching
+    guard let circuit = circuits[circuitId] else {
+      reject("PROOF_GENERATION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
+      return
+    }
+    
+    // Run the heavy computation in a high priority background thread
+    DispatchQueue.global(qos: .userInitiated).async {
+      // Create a new autorelease pool for better memory management during heavy computation
+      autoreleasepool {
+        do {
+          let start = DispatchTime.now()
+          
+          // Run proof generation in background
+          let proof = try circuit.prove(inputs)
+          
+          let end = DispatchTime.now()
+          let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+          let timeInterval = Double(nanoTime) / 1_000_000
+          print("Proof generation time: \(timeInterval) ms")
+
+          // Process results in background
+          let hexProof = proof.hexEncodedString()
+          
+          // Switch back to main thread only for the final callback
+          DispatchQueue.main.async {
+            resolve(["proof": hexProof])
+          }
+        } catch {
+          print("Error", error)
+          DispatchQueue.main.async {
+            reject("PROOF_GENERATION_ERROR", "Error generating the proof", error)
+          }
+        }
       }
-
-      let start = DispatchTime.now()
-      let proof = try circuit?.prove(inputs, proof_type: proofType ?? "plonk", recursive: recursive ?? false)
-      let end = DispatchTime.now()
-      let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-      let timeInterval = Double(nanoTime) / 1_000_000
-      print("Proof generation time: \(timeInterval) ms")
-
-      let hexProof = proof?.proof.hexEncodedString()
-      let hexVkey = proof?.vkey.hexEncodedString()
-      
-      resolve(["proof": hexProof, "vkey": hexVkey])
-    } catch {
-      print("Error", error)
-      reject("PROOF_GENERATION_ERROR", "Error generating the proof", error)
     }
   }
   
-  @objc(verify:vkey:circuitId:proofType:resolve:reject:)
-  func verify(_ proof: String, vkey: String, circuitId: String, proofType: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    do {
-      let circuit = circuits[circuitId]
-      if circuit == nil {
-        throw CircuitError.undefinedCircuit
+  @objc(verify:circuitId:resolve:reject:)
+  func verify(_ proof: String, circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    // Capture circuit reference on main thread before dispatching
+    guard let circuit = circuits[circuitId] else {
+      reject("PROOF_VERIFICATION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
+      return
+    }
+
+    // Run verification in background thread
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        do {
+          guard let proofData = proof.hexadecimal else {
+            DispatchQueue.main.async {
+              reject("PROOF_VERIFICATION_ERROR", "Invalid proof format", nil)
+            }
+            return
+          }
+          
+          let verified = try circuit.verify(proofData)
+          
+          DispatchQueue.main.async {
+            resolve(["verified": verified])
+          }
+        } catch {
+          print("Error", error)
+          DispatchQueue.main.async {
+            reject("PROOF_VERIFICATION_ERROR", "Error verifying the proof", error)
+          }
+        }
       }
-      
-      let wholeProof = Proof(proof: proof.hexadecimal!, vkey: vkey.hexadecimal!)
-      let verified = try circuit!.verify(wholeProof, proof_type: proofType ?? "plonk")
-      
-      resolve(["verified": verified])
-    } catch {
-      print("Error", error)
-      reject("PROOF_VERIFICATION_ERROR", "Error verifying the proof", error)
+    }
+  }
+
+  @objc(execute:circuitId:resolve:reject:)
+  func execute(_ inputs: [String: Any], circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let circuit = circuits[circuitId] else {
+      reject("CIRCUIT_EXECUTION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
+      return
+    }
+
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        do {
+          let witness = try circuit.execute(inputs)
+          DispatchQueue.main.async {
+            resolve(["witness": witness])
+          }
+        } catch {
+          print("Error", error)
+          DispatchQueue.main.async {
+            reject("CIRCUIT_EXECUTION_ERROR", "Error executing the circuit", error)
+          }
+        }
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-use noir_rs::barretenberg::srs::{get_srs, localsrs::LocalSrs, netsrs::NetSrs, Srs};
+use noir_rs::barretenberg::{srs::{get_srs, localsrs::LocalSrs, netsrs::NetSrs, Srs}, utils::get_subgroup_size};
 use serde_json::Value;
 
 fn main() {
@@ -20,17 +20,18 @@ fn main() {
                 .expect("Failed to get bytecode");
 
             println!("Circuit decoded. Downloading SRS...");
-            let srs: Srs = get_srs(bytecode, None, false);
+            let subgroup_size = get_subgroup_size(bytecode, false);
+            let srs: Srs = get_srs(subgroup_size, None);
             local_srs = LocalSrs(srs);
             println!("SRS downloaded.");
         }
         None => {
             println!("No path provided, using default circuit size");
             println!("Downloading SRS...");
-            // Default to around 512k constraints, which should be enough
+            // Default to around 1M constraints, which should be enough
             // for most circuits that can work on a mobile device
-            // This translates to a subgroup size of 524288 (the next power of 2 above 512k, i.e. 2^19)
-            let srs: Srs = NetSrs::new(524288 + 1).to_srs();
+            // This translates to a subgroup size of 1048576 (the next power of 2 above 1M, i.e. 2^20)
+            let srs: Srs = NetSrs::new(1048576 + 1).to_srs();
             local_srs = LocalSrs(srs);
             println!("SRS downloaded.");
         }
