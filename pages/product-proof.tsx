@@ -8,6 +8,7 @@ import {
   clearCircuit,
   extractProof,
   generateProof,
+  generateVkey,
   setupCircuit,
   verifyProof,
 } from '../lib/noir';
@@ -55,6 +56,9 @@ export default function ProductProof() {
     try {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
+      // Ideally for better performance, you should precompute the vkey
+      // outside the app, since it's going to be the same for the same circuit every time
+      const vkey = await generateVkey(circuitId!);
       const start = Date.now();
       const {proofWithPublicInputs} = await generateProof(
         {
@@ -64,6 +68,7 @@ export default function ProductProof() {
         },
         // The id returned by the setupCircuit function
         circuitId!,
+        vkey,
       );
       const end = Date.now();
       setProvingTime(end - start);
@@ -83,10 +88,12 @@ export default function ProductProof() {
     try {
       // No need to provide the circuit here, as it was already loaded
       // during the proof generation
+      const vkey = await generateVkey(circuitId!);
       const verified = await verifyProof(
         proofAndInputs,
         // The id returned by the setupCircuit function
         circuitId!,
+        vkey,
       );
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');

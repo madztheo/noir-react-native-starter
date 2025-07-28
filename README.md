@@ -160,4 +160,4 @@ Honk is the most recent proof system developed by Aztec and is faster and less m
 
 ## Latest supported version of Noir
 
-The latest supported version of Noir is 1.0.0-beta.7 with Barretenberg 1.0.0-nightly.20250701 as backend.
+The latest supported version of Noir is 1.0.0-beta.8 with Barretenberg 1.0.0-nightly.20250723 as backend.

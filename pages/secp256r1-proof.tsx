@@ -7,6 +7,7 @@ import {
   clearCircuit,
   extractProof,
   generateProof,
+  generateVkey,
   setupCircuit,
   verifyProof,
 } from '../lib/noir';
@@ -27,7 +28,11 @@ export default function Secp256r1Proof() {
   useEffect(() => {
     // First call this function to load the circuit and setup the SRS for it
     // Keep the id returned by this function as it is used to identify the circuit
-    setupCircuit(circuit as unknown as Circuit).then(id => setCircuitId(id));
+    // Specify the actual size of the circuit in the setupCircuit function
+    // and set lowMemoryMode to true if you want to use low memory mode
+    setupCircuit(circuit as unknown as Circuit, 70782, true).then(id =>
+      setCircuitId(id),
+    );
     return () => {
       if (circuitId) {
         // Clean up the circuit after the component is unmounted
@@ -41,6 +46,9 @@ export default function Secp256r1Proof() {
     try {
       // You can also preload the circuit separately using this function
       // await preloadCircuit(circuit);
+      // Ideally for better performance, you should precompute the vkey
+      // outside the app, since it's going to be the same for the same circuit every time
+      const vkey = await generateVkey(circuitId!);
       const start = Date.now();
       const {proofWithPublicInputs} = await generateProof(
         {
@@ -68,6 +76,7 @@ export default function Secp256r1Proof() {
           ],
         },
         circuitId!,
+        vkey,
       );
       const end = Date.now();
       setProvingTime(end - start);
@@ -87,7 +96,8 @@ export default function Secp256r1Proof() {
     try {
       // No need to provide the circuit here, as it was already loaded
       // during the proof generation
-      const verified = await verifyProof(proofAndInputs, circuitId!);
+      const vkey = await generateVkey(circuitId!);
+      const verified = await verifyProof(proofAndInputs, circuitId!, vkey);
       if (verified) {
         Alert.alert('Verification result', 'The proof is valid!');
       } else {

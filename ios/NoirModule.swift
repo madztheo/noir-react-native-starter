@@ -60,9 +60,9 @@ class NoirModule: NSObject {
   var swoir = Swoir(backend: Swoirenberg.self)
   var circuits: [String: Circuit] = [:]
   
-  func loadCircuit(circuitData: Data, size: UInt32?) throws -> String {
+  func loadCircuit(circuitData: Data, size: UInt32?, lowMemoryMode: Bool = false) throws -> String {
     do {
-      let circuit = try swoir.createCircuit(manifest: circuitData, size: size)
+      let circuit = try swoir.createCircuit(manifest: circuitData, size: size, lowMemoryMode: lowMemoryMode)
       let id = circuit.manifest.hash.description
       circuits[id] = circuit
       return id
@@ -79,13 +79,13 @@ class NoirModule: NSObject {
     return path
   }
 
-  @objc(setupCircuit:size:resolve:reject:)
-  func setupCircuit(_ circuitData: String, size: Int, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(setupCircuit:size:lowMemoryMode:resolve:reject:)
+  func setupCircuit(_ circuitData: String, size: Int, lowMemoryMode: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     // Run circuit setup in background thread
     DispatchQueue.global(qos: .userInitiated).async {
       autoreleasepool {
         do {
-          let circuitId = try self.loadCircuit(circuitData: circuitData.data(using: .utf8)!, size: UInt32(size))
+          let circuitId = try self.loadCircuit(circuitData: circuitData.data(using: .utf8)!, size: UInt32(size), lowMemoryMode: lowMemoryMode)
           guard let circuit = self.circuits[circuitId] else {
             DispatchQueue.main.async {
               reject("CIRCUIT_SETUP_ERROR", "Failed to load circuit", CircuitError.undefinedCircuit)
@@ -112,8 +112,8 @@ class NoirModule: NSObject {
     }
   }
  
-  @objc(prove:circuitId:resolve:reject:)
-  func prove(_ inputs: [String: Any], circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(prove:circuitId:vkey:resolve:reject:)
+  func prove(_ inputs: [String: Any], circuitId: String, vkey: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     // Capture circuit reference on main thread before dispatching
     guard let circuit = circuits[circuitId] else {
       reject("PROOF_GENERATION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
@@ -126,9 +126,17 @@ class NoirModule: NSObject {
       autoreleasepool {
         do {
           let start = DispatchTime.now()
+
+          let vkeyData = vkey.hexadecimal
+          if vkeyData == nil {
+            DispatchQueue.main.async {
+              reject("PROOF_GENERATION_ERROR", "Invalid vkey format", nil)
+            }
+            return
+          }
           
           // Run proof generation in background
-          let proof = try circuit.prove(inputs)
+          let proof = try circuit.prove(inputs, vkey: vkeyData!)
           
           let end = DispatchTime.now()
           let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
@@ -152,8 +160,8 @@ class NoirModule: NSObject {
     }
   }
   
-  @objc(verify:circuitId:resolve:reject:)
-  func verify(_ proof: String, circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  @objc(verify:circuitId:vkey:resolve:reject:)
+  func verify(_ proof: String, circuitId: String, vkey: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     // Capture circuit reference on main thread before dispatching
     guard let circuit = circuits[circuitId] else {
       reject("PROOF_VERIFICATION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
@@ -171,7 +179,14 @@ class NoirModule: NSObject {
             return
           }
           
-          let verified = try circuit.verify(proofData)
+          let vkeyData = vkey.hexadecimal
+          if vkeyData == nil {
+            DispatchQueue.main.async {
+              reject("PROOF_VERIFICATION_ERROR", "Invalid vkey format", nil)
+            }
+            return
+          }
+          let verified = try circuit.verify(proofData, vkey: vkeyData!)
           
           DispatchQueue.main.async {
             resolve(["verified": verified])
@@ -204,6 +219,31 @@ class NoirModule: NSObject {
           print("Error", error)
           DispatchQueue.main.async {
             reject("CIRCUIT_EXECUTION_ERROR", "Error executing the circuit", error)
+          }
+        }
+      }
+    }
+  }
+
+  @objc(generateVkey:resolve:reject:)
+  func generateVkey(_ circuitId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let circuit = circuits[circuitId] else {
+      reject("VKEY_GENERATION_ERROR", "Circuit not found", CircuitError.undefinedCircuit)
+      return
+    }
+
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        do {
+          let vkey = try circuit.getVerificationKey()
+          let hexVkey = vkey.hexEncodedString()
+          DispatchQueue.main.async {
+            resolve(["vkey": hexVkey])
+          }
+        } catch {
+          print("Error", error)
+          DispatchQueue.main.async {
+            reject("VKEY_GENERATION_ERROR", "Error generating the vkey", error)
           }
         }
       }

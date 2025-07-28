@@ -12,21 +12,28 @@
 
 RCT_EXTERN_METHOD(setupCircuit:(NSString)circuitData
                   size:(NSInteger)size
+                  lowMemoryMode:(BOOL)lowMemoryMode
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(prove:(NSDictionary)inputs
                   circuitId:(NSString)circuitId
+                  vkey:(NSString)vkey
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(verify:(NSString)proof
                   circuitId:(NSString)circuitId
+                  vkey:(NSString)vkey
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(execute:(NSDictionary)inputs
                   circuitId:(NSString)circuitId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(generateVkey:(NSString)circuitId
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

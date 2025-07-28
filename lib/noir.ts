@@ -22,13 +22,19 @@ export async function prepareSrs() {
  * and setup the SRS for this circuit
  * @param circuit The circuit to setup
  * @param size The size of the circuit
+ * @param lowMemoryMode Whether to use low memory mode
  * @returns The ID of the circuit
  */
-export async function setupCircuit(circuit: Circuit, size?: number) {
+export async function setupCircuit(
+  circuit: Circuit,
+  size?: number,
+  lowMemoryMode?: boolean,
+) {
   const {circuitId} = await Noir.setupCircuit(
     JSON.stringify(circuit),
     // Default to subgroup 2^20 if size is not provided
     size ?? 1048576,
+    lowMemoryMode ?? false,
   );
   return circuitId as string;
 }
@@ -109,8 +115,9 @@ export function extractProof(circuit: Circuit, proofWithPublicInputs: string) {
 export async function generateProof(
   inputs: {[key: string]: any},
   circuitId: string,
+  vkey: string,
 ) {
-  const {proof} = await Noir.prove(inputs, circuitId);
+  const {proof} = await Noir.prove(inputs, circuitId, vkey);
 
   return {
     // This is the full proof, including the public inputs
@@ -128,14 +135,20 @@ export async function generateProof(
 export async function verifyProof(
   proofWithPublicInputs: string,
   circuitId: string,
+  vkey: string,
 ) {
-  const {verified} = await Noir.verify(proofWithPublicInputs, circuitId);
+  const {verified} = await Noir.verify(proofWithPublicInputs, circuitId, vkey);
   return verified;
 }
 
 export async function execute(inputs: {[key: string]: any}, circuitId: string) {
   const {witness} = await Noir.execute(inputs, circuitId);
   return witness as string[];
+}
+
+export async function generateVkey(circuitId: string) {
+  const {vkey} = await Noir.generateVkey(circuitId);
+  return vkey;
 }
 
 /**

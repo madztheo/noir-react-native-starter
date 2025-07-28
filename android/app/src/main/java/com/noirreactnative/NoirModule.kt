@@ -28,9 +28,9 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     override fun getName() = "NoirModule"
     var circuits: HashMap<String, Circuit> = HashMap()
 
-    fun loadCircuit(circuitData: String, size: Int, promise: Promise): String? {
+    fun loadCircuit(circuitData: String, size: Int, lowMemoryMode: Boolean, promise: Promise): String? {
         try {
-            val circuit = Circuit.fromJsonManifest(circuitData, size)
+            val circuit = Circuit.fromJsonManifest(circuitData, size, lowMemoryMode)
             val id = circuit.manifest.hash.toLong().toString()
             circuits.put(id, circuit)
             return id
@@ -100,9 +100,9 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun setupCircuit(circuitData: String, size: Int, promise: Promise) {
+    @ReactMethod fun setupCircuit(circuitData: String, size: Int, lowMemoryMode: Boolean, promise: Promise) {
         Thread {
-            val circuitId = loadCircuit(circuitData, size, promise)
+            val circuitId = loadCircuit(circuitData, size, lowMemoryMode, promise)
             if (circuitId == null) {
                 promise.reject("CIRCUIT_LOAD_FAIL", "Unable to load circuit. Please check the circuit was compiled with the correct version of Noir")
                 return@Thread
@@ -120,7 +120,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
      }
 
-    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, promise: Promise) {
+    @ReactMethod fun prove(inputs: ReadableMap, circuitId: String, vkey: String, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -129,7 +129,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var proof: String? = circuit.prove(inputs.toHashMap())
+                var proof: String? = circuit.prove(inputs.toHashMap(), vkey)
 
                 var result: WritableMap = Arguments.createMap()
                 result.putString("proof", proof)
@@ -141,7 +141,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         }.start()
     }
 
-    @ReactMethod fun verify(proof: String, circuitId: String, promise: Promise) {
+    @ReactMethod fun verify(proof: String, circuitId: String, vkey: String, promise: Promise) {
         Thread {
             val circuit = circuits.get(circuitId)
             if (circuit == null) {
@@ -150,7 +150,7 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             }
 
             try {
-                var verified: Boolean? = circuit.verify(proof)
+                var verified: Boolean? = circuit.verify(proof, vkey)
 
                 var result: WritableMap = Arguments.createMap()
                 result.putBoolean("verified", verified!!)
@@ -176,6 +176,22 @@ class NoirModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
             var result: WritableMap = Arguments.createMap()
             result.putArray("witness", witnessArray)
+            promise.resolve(result)
+        }.start()
+    }
+
+    @ReactMethod fun generateVkey(circuitId: String, promise: Promise) {
+        Thread {
+            val circuit = circuits.get(circuitId)
+            if (circuit == null) {
+                promise.reject("CIRCUIT_NOT_LOADED", "Circuit not loaded. Please load the circuit before generating a vkey")
+                return@Thread
+            }
+
+            var vkey: String? = circuit.getVerificationKey()
+
+            var result: WritableMap = Arguments.createMap()
+            result.putString("vkey", vkey)
             promise.resolve(result)
         }.start()
     }
